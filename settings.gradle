@@ -1,2 +1,4 @@
 rootProject.name = 'simplerpc-java'
+include 'simplerpc'
+include 'main'
 
