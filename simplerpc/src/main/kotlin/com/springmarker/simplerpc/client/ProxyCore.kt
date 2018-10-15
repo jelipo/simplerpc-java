@@ -1,19 +1,19 @@
-package com.springmarker.simplerpc.core
+package com.springmarker.simplerpc.client
 
 import net.sf.cglib.proxy.MethodInterceptor
 import net.sf.cglib.proxy.MethodProxy
 import java.lang.reflect.Method
 
+
 /**
  * @author Springmarker
- * @date 2018/9/27 22:49
+ * @date 2018/10/15 21:23
  */
-class Test: MethodInterceptor {
+internal class ProxyCore : MethodInterceptor {
 
     override fun intercept(obj: Any?, method: Method?, args: Array<out Any>?, proxy: MethodProxy?): Any {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("完成接口的具体实现")
     }
 
 
 }
-
