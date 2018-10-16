@@ -28,7 +28,7 @@ class RpcClientFactory {
      * 根据 clazz 创建代理类，并添加到 [RpcClientFactory] 中，clazz 必须为一个接口类型。
      *
      * @param clazz 某个接口的 [Class]
-     * @return 返回值为[Boolean] 类型，为true时表示创建成功，false表示创建失败。
+     * @return 返回值为[Boolean] 类型，为true时表示创建并添加成功，false表示创建或者添加失败。
      */
     fun add(clazz: Class<*>): Boolean {
         if (!clazz.isInterface) {

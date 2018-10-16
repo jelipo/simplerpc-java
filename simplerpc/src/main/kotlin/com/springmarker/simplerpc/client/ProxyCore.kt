@@ -12,7 +12,7 @@ import java.lang.reflect.Method
 internal class ProxyCore : MethodInterceptor {
 
     override fun intercept(obj: Any?, method: Method?, args: Array<out Any>?, proxy: MethodProxy?): Any {
-        TODO("完成接口的具体实现")
+        return "fdsgfds"
     }
 
 
