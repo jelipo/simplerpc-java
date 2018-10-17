@@ -7,12 +7,17 @@ import org.junit.jupiter.api.Test
  */
 class Main {
 
+
     @Test
     fun test() {
+        val main = Main()
+        val javaClass = main.javaClass
+        val method = javaClass.methods[0].annotations
+
         val rpcClientFactory = RpcClientFactory()
         val success = rpcClientFactory.add(SimpleService::class.java)
         val simpleService = rpcClientFactory.get(SimpleService::class.java)
-        println(simpleService!!::class.java.isAssignableFrom(SimpleService::class.java))
+        simpleService!!.test()
     }
 
 }
