@@ -1,6 +1,6 @@
-package com.springmarker.simplerpc.client
+package com.springmarker.simplerpchttp.client
 
-import com.springmarker.simplerpc.annotations.Asyn
+import com.springmarker.simplerpchttp.annotations.AsynRpc
 import net.sf.cglib.proxy.MethodInterceptor
 import net.sf.cglib.proxy.MethodProxy
 import java.lang.reflect.Method
@@ -12,11 +12,13 @@ import java.lang.reflect.Method
  */
 internal class ProxyCore : MethodInterceptor {
 
+
+
     /**
      * 代理类的主要处理方法
      */
     override fun intercept(obj: Any?, method: Method, args: Array<out Any>, proxy: MethodProxy?): Any? {
-        val annotations = method.getAnnotation(Asyn::class.java)
+        val annotations = method.getAnnotation(AsynRpc::class.java)
         return if (annotations == null) {
             handleSyncRequest(obj, method, args, proxy)
         } else {
