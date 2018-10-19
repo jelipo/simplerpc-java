@@ -1,6 +1,6 @@
-package com.springmarker.simplerpc.client
+package com.springmarker.simplerpchttp.client
 
-import com.springmarker.simplerpc.core.CallBack
+import com.springmarker.simplerpchttp.core.CallBack
 
 /**
  * 此接口用于定义如何发送消息，主要定义

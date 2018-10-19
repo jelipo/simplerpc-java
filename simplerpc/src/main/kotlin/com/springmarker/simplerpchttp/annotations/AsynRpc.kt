@@ -1,4 +1,4 @@
-package com.springmarker.simplerpc.annotations
+package com.springmarker.simplerpchttp.annotations
 
 import java.lang.annotation.Inherited
 
@@ -10,4 +10,4 @@ import java.lang.annotation.Inherited
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
 @Inherited
-annotation class Asyn
+annotation class AsynRpc

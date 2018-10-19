@@ -1,4 +1,4 @@
-package com.springmarker.simplerpc.client
+package com.springmarker.simplerpchttp.client
 
 import net.sf.cglib.proxy.Enhancer
 import java.util.concurrent.ConcurrentHashMap
