@@ -1,4 +1,4 @@
-package com.springmarker.simplerpchttp.core
+package com.springmarker.simplerpc.core
 
 /**
  * @author Frank

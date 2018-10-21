@@ -1,5 +1,6 @@
-package com.springmarker.simplerpchttp.client
+package com.springmarker.simplerpc.client
 
+import com.springmarker.simplerpc.enum.ProtocolType
 import net.sf.cglib.proxy.Enhancer
 import java.util.concurrent.ConcurrentHashMap
 
@@ -11,7 +12,15 @@ class RpcClientFactory {
 
     private val nameMap: ConcurrentHashMap<String, Any?> = ConcurrentHashMap()
 
-    private val proxyCore: ProxyCore = ProxyCore()
+    private lateinit var proxyCore: ProxyCore
+
+    fun build(protocolType: ProtocolType, vararg packagePath: String): RpcClientFactory {
+        val senderImplClassPath = protocolType.senderImplClassPath
+        val newInstance = protocolType.senderImplClassPath.newInstance()
+        this.proxyCore = ProxyCore(newInstance)
+        proxyCore.hashCode()
+        return this
+    }
 
     /**
      * 根据clazz获取代理对象。

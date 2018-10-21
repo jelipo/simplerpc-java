@@ -1,13 +1,4 @@
-plugins {
-    id 'java'
-    id 'idea'
-}
 
 group 'com.springmarker'
 
-repositories {
-    maven { url "http://maven.aliyun.com/nexus/content/groups/public/" }
-    mavenLocal()
-    mavenCentral()
-}
 
