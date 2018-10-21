@@ -1,4 +1,4 @@
-import com.springmarker.simplerpchttp.client.RpcClientFactory
+import com.springmarker.simplerpc.client.RpcClientFactory
 import org.junit.jupiter.api.Test
 
 /**

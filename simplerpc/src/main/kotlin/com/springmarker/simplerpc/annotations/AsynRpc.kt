@@ -1,4 +1,4 @@
-package com.springmarker.simplerpchttp.annotations
+package com.springmarker.simplerpc.annotations
 
 import java.lang.annotation.Inherited
 
