@@ -5,6 +5,6 @@
 open interface SimpleService {
 
 
-    fun test()
+    fun test(): String
 
 }

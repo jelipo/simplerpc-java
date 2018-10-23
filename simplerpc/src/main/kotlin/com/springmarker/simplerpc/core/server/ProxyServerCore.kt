@@ -1,4 +1,4 @@
-package com.springmarker.simplerpc.client
+package com.springmarker.simplerpc.core.server
 
 import com.springmarker.simplerpc.annotations.AsynRpc
 import net.sf.cglib.proxy.MethodInterceptor
@@ -10,8 +10,8 @@ import java.lang.reflect.Method
  * @author Springmarker
  * @date 2018/10/15 21:23
  */
-internal class ProxyCore(
-        private val sender: SenderInterface
+internal class ProxyServerCore(
+        private val receiver: ReceiverInterface
 ) : MethodInterceptor {
 
 
@@ -31,7 +31,7 @@ internal class ProxyCore(
      * 处理同步方法
      */
     private fun handleSyncRequest(obj: Any?, method: Method, args: Array<out Any>, proxy: MethodProxy?): Any? {
-        this.sender.send(args)
+        this.receiver.send(args)
         return null
     }
 
