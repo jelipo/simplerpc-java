@@ -1,5 +1,6 @@
-import com.springmarker.simplerpc.client.RpcClientFactory
+import com.springmarker.simplerpc.core.client.RpcClientFactory
 import com.springmarker.simplerpc.enum.ProtocolType
+import com.springmarker.simplerpc.protocol.http.HttpSender
 import org.junit.jupiter.api.Test
 
 /**
@@ -11,14 +12,12 @@ class Main {
 
     @Test
     fun test() {
-        val main = Main()
-        val javaClass = main.javaClass
-        val method = javaClass.methods[0].annotations
-
-        val rpcClientFactory = RpcClientFactory().build(ProtocolType.HTTP,"")
-        val success = rpcClientFactory.add(SimpleService::class.java)
+        val rpcClientFactory = RpcClientFactory(HttpSender(), arrayListOf(SimpleService::class.java))
+        //val success = rpcClientFactory.add(SimpleService::class.java)
         val simpleService = rpcClientFactory.get(SimpleService::class.java)
-        simpleService!!.test()
+        val test = simpleService!!.test()
+        println()
     }
+
 
 }

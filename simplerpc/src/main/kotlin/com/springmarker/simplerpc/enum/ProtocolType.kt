@@ -1,6 +1,6 @@
 package com.springmarker.simplerpc.enum
 
-import com.springmarker.simplerpc.client.SenderInterface
+import com.springmarker.simplerpc.core.client.SenderInterface
 import com.springmarker.simplerpc.protocol.http.HttpSender
 
 /**
