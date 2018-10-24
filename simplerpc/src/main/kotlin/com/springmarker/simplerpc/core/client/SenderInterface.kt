@@ -1,6 +1,6 @@
 package com.springmarker.simplerpc.core.client
 
-import com.springmarker.simplerpc.core.CallBack
+import java.lang.reflect.Method
 
 /**
  * 此接口用于定义如何发送消息，主要定义
@@ -10,8 +10,7 @@ import com.springmarker.simplerpc.core.CallBack
  */
 interface SenderInterface {
 
-    fun send(any: Any): Any?
+    fun send(method: Method, args: Array<out Any>): Any?
 
-    fun sendAsyn(callBack: CallBack)
 
 }
