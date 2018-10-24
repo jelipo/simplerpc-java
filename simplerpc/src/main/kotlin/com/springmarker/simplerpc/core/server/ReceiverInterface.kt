@@ -1,7 +1,5 @@
 package com.springmarker.simplerpc.core.server
 
-import com.springmarker.simplerpc.core.CallBack
-
 /**
  * 此接口用于定义如何接收消息，主要定义
  *
@@ -10,8 +8,6 @@ import com.springmarker.simplerpc.core.CallBack
  */
 interface ReceiverInterface {
 
-    fun send(any: Any): Any?
-
-    fun sendAsyn(callBack: CallBack)
+    fun receive(byteArray: Array<Byte>): Any?
 
 }

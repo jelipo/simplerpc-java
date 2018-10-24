@@ -31,7 +31,7 @@ internal class ProxyClientCore(
      * 处理同步方法
      */
     private fun handleSyncRequest(obj: Any?, method: Method, args: Array<out Any>, proxy: MethodProxy?): Any? {
-        return this.sender.send(args)
+        return this.sender.send(method, args)
     }
 
     /**
