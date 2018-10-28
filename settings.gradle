@@ -8,5 +8,5 @@ pluginManagement {
 rootProject.name = 'simplerpc-java'
 include 'simplerpc'
 include 'main'
-include 'simplerpc-http'
+include 'simplerpc-netty'
 

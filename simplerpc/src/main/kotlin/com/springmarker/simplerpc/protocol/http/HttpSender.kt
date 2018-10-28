@@ -1,8 +1,7 @@
 package com.springmarker.simplerpc.protocol.http
 
 import com.springmarker.simplerpc.core.client.SenderInterface
-import com.springmarker.simplerpc.pojo.ExchangeRequest
-import com.springmarker.simplerpc.protocol.http.pojo.HttpExchangeRequest
+import java.lang.reflect.Method
 
 /**
  * @author Frank
@@ -12,14 +11,12 @@ class HttpSender(
         val url: String
 ) : SenderInterface {
 
-
     init {
 
     }
 
-    override fun send(request: ExchangeRequest): Any? {
-        val httpRequest = request as HttpExchangeRequest
-        return "send"
+    override fun send(method: Method, args: Array<out Any>): Any? {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
 }

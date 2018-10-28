@@ -1,5 +1,7 @@
 package com.springmarker.simplerpc.core.server
 
+import com.springmarker.simplerpc.pojo.ExchangeRequest
+
 /**
  * 此接口用于定义如何接收消息，主要定义
  *
@@ -8,6 +10,6 @@ package com.springmarker.simplerpc.core.server
  */
 interface ReceiverInterface {
 
-    fun receive(byteArray: Array<Byte>): Any?
+    fun receive(request: ExchangeRequest.RpcRequest?): Any?
 
 }
