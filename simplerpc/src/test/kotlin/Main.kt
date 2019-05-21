@@ -1,5 +1,4 @@
 import com.springmarker.simplerpc.core.client.RpcClientFactory
-import com.springmarker.simplerpc.enum.ProtocolType
 import com.springmarker.simplerpc.protocol.http.HttpSender
 import org.junit.jupiter.api.Test
 

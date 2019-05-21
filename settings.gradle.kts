@@ -5,6 +5,6 @@ pluginManagement {
         mavenLocal()
     }
 }
-rootProject.name = "simplerpc-java"
-include("simplerpc", "main", "simplerpc-netty")
+rootProject.name = "com.springmarker.simplerpc-java"
+include("com.springmarker.simplerpc", "main", "com.springmarker.simplerpc-netty")
 
