@@ -1,17 +1,13 @@
 package com.springmarker.simplerpc.pojo;
 
+import lombok.Data;
+
 /**
  * @author Frank
  * @date 2018/10/28 22:55
  */
+@Data
 public class ServerConfig {
     private int port;
 
-    public int getPort() {
-        return port;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
-    }
 }

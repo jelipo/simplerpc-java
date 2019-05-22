@@ -1,5 +1,7 @@
 package com.springmarker.simplerpc.pojo;
 
+import lombok.Data;
+
 import java.lang.reflect.Method;
 import java.util.List;
 
@@ -7,19 +9,20 @@ import java.util.List;
  * @author Frank
  * @date 2018/10/21 23:44
  */
+@Data
 public class ProxyObject {
     /**
      * class的完整名称。
      */
-    String fullName;
+    private String fullName;
     /**
      * 接口method的List。
      */
-    List<ProxyMethod> methods;
+    private List<ProxyMethod> methods;
     /**
      * 创建出来的代理对象。
      */
-    Object anyObject;
+    private Object anyObject;
 
     public class ProxyMethod {
         boolean asyn;

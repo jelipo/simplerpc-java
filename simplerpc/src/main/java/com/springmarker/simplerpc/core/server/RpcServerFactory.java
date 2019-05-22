@@ -1,7 +1,9 @@
-package com.springmarker.simplerpc.core.client;
+package com.springmarker.simplerpc.core.server;
 
+;
+import com.springmarker.simplerpc.core.client.ProxyClientCore;
+import com.springmarker.simplerpc.core.client.SenderInterface;
 import com.springmarker.simplerpc.exception.DuplicateClassException;
-import com.springmarker.simplerpc.exception.NotInterfaceException;
 import net.sf.cglib.proxy.Enhancer;
 
 import java.util.List;
@@ -11,25 +13,26 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Springmarker
  * @date 2018/10/15 21:12
  */
-public class RpcClientFactory {
-
+class RpcServerFactory {
     private SenderInterface sender;
     private List<Class<Object>> classList;
 
-    private ProxyClientCore proxyCore;
-    private ConcurrentHashMap<String, Object> nameMap = new ConcurrentHashMap<>();
-
-    public RpcClientFactory(SenderInterface sender, List<Class<Object>> classList) {
+    public RpcServerFactory(SenderInterface sender, List<Class<Object>> classList) {
         this.sender = sender;
         this.classList = classList;
+        nameMap = new ConcurrentHashMap<>();
         proxyCore = new ProxyClientCore(sender);
         for (Class<Object> objectClass : classList) {
             try {
                 add(objectClass);
-            } catch (DuplicateClassException | NotInterfaceException ignored) {
+            } catch (DuplicateClassException ignored) {
             }
         }
     }
+
+    private ConcurrentHashMap<String, Object> nameMap;
+
+    private ProxyClientCore proxyCore;
 
     /**
      * 根据clazz获取代理对象。
@@ -39,22 +42,21 @@ public class RpcClientFactory {
      */
     public <T> T get(Class<T> clazz) {
         var any = nameMap.get(clazz.getName());
+        if (any==null){
+            return null;
+        }
         return (T) any;
     }
 
     /**
      * 根据 clazz 创建代理类，并添加到 [RpcClientFactory] 中，clazz 必须为一个接口类型。
      *
-     * @param clazz 某个接口的 [Class]
+     * @param clazz 某个 [Class]
      */
-    public void add(Class<Object> clazz) throws DuplicateClassException, NotInterfaceException {
+    public void add(Class<Object> clazz) throws DuplicateClassException {
         //检查是否添加过了
         if (checkDuplicateClass(clazz)) {
-            throw new DuplicateClassException("The ${clazz.canonicalName} has been added.");
-        }
-        //
-        if (!clazz.isInterface()) {
-            throw new NotInterfaceException("${clazz.canonicalName} is not an interface.");
+            throw new DuplicateClassException("The " + clazz.getCanonicalName() + " has been added.");
         }
         var proxy = creatProxy(clazz);
         nameMap.put(clazz.getCanonicalName(), proxy);
