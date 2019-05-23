@@ -1,3 +1,3 @@
 rootProject.name = "simplerpc-java"
-include("simplerpc")
+include("simplerpc","simplerpc-test")
 

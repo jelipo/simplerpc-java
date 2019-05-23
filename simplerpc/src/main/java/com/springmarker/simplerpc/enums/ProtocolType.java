@@ -2,7 +2,7 @@ package com.springmarker.simplerpc.enums;
 
 import com.springmarker.simplerpc.core.client.SenderInterface;
 
-import com.springmarker.simplerpc.protocol.http.HttpSender;
+import com.springmarker.simplerpc.protocol.net.http.HttpSender;
 
 /**
  * @author Frank

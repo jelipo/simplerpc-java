@@ -1,4 +1,4 @@
-package com.springmarker.simplerpc.protocol.netty.pojo;
+package com.springmarker.simplerpc.protocol.net.netty.pojo;
 
 import com.springmarker.simplerpc.pojo.ServerConfig;
 

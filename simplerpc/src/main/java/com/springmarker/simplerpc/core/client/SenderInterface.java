@@ -11,7 +11,7 @@ import java.lang.reflect.Method;
 public interface SenderInterface {
 
     /**
-     *
+     *d
      * @param method
      * @param args
      * @return

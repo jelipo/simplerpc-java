@@ -3,37 +3,25 @@ package com.springmarker.simplerpc.core.server;
 import com.springmarker.simplerpc.pojo.ExchangeRequest;
 import com.springmarker.simplerpc.pojo.ServerConfig;
 import net.sf.cglib.proxy.MethodProxy;
+
 import java.lang.reflect.Method;
+import java.util.concurrent.ThreadPoolExecutor;
 
 
 /**
  * @author Springmarker
  * @date 2018/10/15 21:23
  */
-public class ProxyServerCore{
+public class ProxyServerCore {
 
-        private ReceiverInterface receiver;
-        private ServerHandler serverHandler;
-        private ServerConfig serverConfig;
+    private Receiver receiver;
 
-    public ProxyServerCore(ReceiverInterface receiver, ServerHandler serverHandler, ServerConfig serverConfig) {
+    public ProxyServerCore(Receiver receiver) {
         this.receiver = receiver;
-        this.serverHandler = serverHandler;
-        this.serverConfig = serverConfig;
-        serverHandler.start(serverConfig, this);
     }
-
 
     public Object handleMethod(ExchangeRequest baseExchangeRequest) {
         return receiver.receive(baseExchangeRequest.getRpcRequest());
-    }
-
-    /**
-     * 处理同步方法
-     */
-    private Object handleSyncRequest(Object obj, Method method, Object[] args, MethodProxy proxy) {
-        this.receiver.receive(null);
-        return null;
     }
 
 }

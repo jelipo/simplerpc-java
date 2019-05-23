@@ -1,4 +1,3 @@
 
-group ="com.springmarker"
-
+group = "com.springmarker"
 

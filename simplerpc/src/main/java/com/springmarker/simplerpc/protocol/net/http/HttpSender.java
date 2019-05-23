@@ -1,11 +1,11 @@
-package com.springmarker.simplerpc.protocol.http;
+package com.springmarker.simplerpc.protocol.net.http;
 
 import com.springmarker.simplerpc.core.client.SenderInterface;
 
 import java.lang.reflect.Method;
 
 /**
- * @author Frank
+ * @author Springmarker
  * @date 2018/10/21 23:00
  */
 public class HttpSender implements SenderInterface {

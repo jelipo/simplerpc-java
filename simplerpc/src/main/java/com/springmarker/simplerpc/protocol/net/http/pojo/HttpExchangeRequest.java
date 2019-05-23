@@ -1,4 +1,4 @@
-package com.springmarker.simplerpc.protocol.http.pojo;
+package com.springmarker.simplerpc.protocol.net.http.pojo;
 
 import com.springmarker.simplerpc.pojo.ExchangeRequest;
 import lombok.AllArgsConstructor;
