@@ -8,13 +8,12 @@ import java.util.List;
 
 /**
  * @author: Springmarker
- * @date: 2019/5/21 15:29
+ * @date: 2019/5/27 4:02
  */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class RpcRequest {
-    private int methodHashCode;
-    private List<Object> paramList;
-    private int needReturn;
+public class RpcResponse {
+    private Object result;
+    private int exception = 0;
 }

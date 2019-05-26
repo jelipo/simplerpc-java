@@ -1,6 +1,10 @@
 package com.springmarker.simplerpc.core.server;
 
 import com.springmarker.simplerpc.pojo.RpcRequest;
+import com.springmarker.simplerpc.pojo.RpcResponse;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 /**
  * @author Frank
@@ -14,9 +18,16 @@ public class Receiver {
         this.rpcServerFactory = rpcServerFactory;
     }
 
-    public Object receive(RpcRequest request) {
-        Object obj = rpcServerFactory.get(request.getMethodHashCode());
-        //TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-        return null;
+    public RpcResponse receive(RpcRequest request) {
+        Method method = rpcServerFactory.getImplMethodByInterfaceMethodHashcode(request.getMethodHashCode());
+        Object obj = rpcServerFactory.getImplObjectByInterfaceClass(method.getDeclaringClass());
+        RpcResponse rpcResponse = new RpcResponse();
+        try {
+            Object result = method.invoke(obj, request.getParamList());
+            rpcResponse.setResult(result);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            rpcResponse.setException(1);
+        }
+        return rpcResponse;
     }
 }

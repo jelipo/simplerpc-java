@@ -18,8 +18,7 @@ val lombokVersion = "1.18.8"
 
 dependencies {
     implementation("ch.qos.logback:logback-classic:1.2.3")
-    implementation("com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion")
-    implementation("com.fasterxml.jackson.core:jackson-core:$jacksonVersion")
+
     implementation("cglib:cglib:3.2.12")
     compileOnly("org.projectlombok:lombok:$lombokVersion")
     annotationProcessor("org.projectlombok:lombok:$lombokVersion")
@@ -27,6 +26,12 @@ dependencies {
     testCompileOnly("org.projectlombok:lombok:$lombokVersion")
     testCompile("org.junit.jupiter:junit-jupiter-api:5.4.2")
 
+    //序列化
+    compileOnly("com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion")
+    compileOnly("com.fasterxml.jackson.core:jackson-core:$jacksonVersion")
+    compileOnly("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
+
+    //网络协议
     compileOnly("io.netty:netty-all:4.1.36.Final")
 }
 

@@ -1,6 +1,7 @@
 package com.springmarker.simplerpc.core.server;
 
 import com.springmarker.simplerpc.pojo.ExchangeRequest;
+import com.springmarker.simplerpc.pojo.RpcResponse;
 import com.springmarker.simplerpc.pojo.ServerConfig;
 import net.sf.cglib.proxy.MethodProxy;
 
@@ -20,7 +21,7 @@ public class ProxyServerCore {
         this.receiver = receiver;
     }
 
-    public Object handleMethod(ExchangeRequest baseExchangeRequest) {
+    public RpcResponse handleMethod(ExchangeRequest baseExchangeRequest) {
         return receiver.receive(baseExchangeRequest.getRpcRequest());
     }
 
