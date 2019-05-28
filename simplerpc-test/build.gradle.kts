@@ -12,15 +12,24 @@ repositories {
     mavenCentral()
 }
 
+val jacksonVersion = "2.9.9"
 val lombokVersion = "1.18.8"
 
 dependencies {
     compileOnly("org.projectlombok:lombok:$lombokVersion")
     annotationProcessor("org.projectlombok:lombok:$lombokVersion")
     testAnnotationProcessor("org.projectlombok:lombok:$lombokVersion")
-    testCompileOnly("org.projectlombok:lombok:$lombokVersion")
+    testCompile("org.projectlombok:lombok:$lombokVersion")
     testCompile("org.junit.jupiter:junit-jupiter-api:5.4.2")
-    compileOnly(project(":simplerpc"))
+    implementation(project(":simplerpc"))
+
+    //序列化
+    implementation("com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion")
+    implementation("com.fasterxml.jackson.core:jackson-core:$jacksonVersion")
+    implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
+
+    //网络协议
+    implementation("io.netty:netty-all:4.1.36.Final")
 }
 
 configure<JavaPluginConvention> {

@@ -13,7 +13,7 @@ repositories {
 }
 
 
-val jacksonVersion = "2.9.8"
+val jacksonVersion = "2.9.9"
 val lombokVersion = "1.18.8"
 
 dependencies {

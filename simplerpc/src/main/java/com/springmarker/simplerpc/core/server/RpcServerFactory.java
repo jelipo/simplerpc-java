@@ -63,7 +63,7 @@ public class RpcServerFactory {
     }
 
     /**
-     * 根据 clazz 创建代理类，并添加到 [RpcClientFactory] 中，clazz 必须为一个接口类型。
+     * 根据给定的Class创建代理类，并添加到 [RpcClientFactory] 中，Class必须为一个RPC接口类型。
      * 不是线程安全。
      *
      * @param clazz 实现RPC接口的实现类。
