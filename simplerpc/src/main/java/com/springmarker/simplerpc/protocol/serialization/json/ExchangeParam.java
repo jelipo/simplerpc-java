@@ -20,6 +20,9 @@ public class ExchangeParam {
      */
     private Class c;
 
-    private byte[] value;
+    /**
+     * 具体内容
+     */
+    private String v;
 
 }

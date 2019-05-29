@@ -19,6 +19,7 @@ val lombokVersion = "1.18.8"
 dependencies {
     implementation("ch.qos.logback:logback-classic:1.2.3")
 
+    compile("com.github.ben-manes.caffeine:caffeine:2.7.0")
     implementation("cglib:cglib:3.2.12")
     compileOnly("org.projectlombok:lombok:$lombokVersion")
     annotationProcessor("org.projectlombok:lombok:$lombokVersion")
@@ -33,6 +34,7 @@ dependencies {
 
     //网络协议
     compileOnly("io.netty:netty-all:4.1.36.Final")
+    compileOnly("com.squareup.okhttp3:okhttp:3.14.2")
 }
 
 configure<JavaPluginConvention> {

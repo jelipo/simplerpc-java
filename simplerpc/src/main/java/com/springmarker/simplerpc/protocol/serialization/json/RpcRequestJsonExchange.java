@@ -16,6 +16,6 @@ import java.util.List;
 @NoArgsConstructor
 public class RpcRequestJsonExchange extends RpcRequest {
 
-    private List<ExchangeParam> params;
+    private List<String> exchangeStrParams;
 
 }
