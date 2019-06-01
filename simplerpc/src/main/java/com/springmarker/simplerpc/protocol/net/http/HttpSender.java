@@ -12,6 +12,7 @@ import okhttp3.*;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -30,13 +31,23 @@ public class HttpSender implements SenderInterface {
         this.dataSerialization = dataSerialization;
     }
 
+    /**
+     * 专门缓存Method的缓存，
+     */
     private LoadingCache<Integer, Method> cache = Caffeine.newBuilder()
             .maximumSize(10000)
             .expireAfterWrite(5, TimeUnit.MINUTES)
             .build(key -> null);
 
+
+    /**
+     * 具体的HTTP协议发送方法。
+     * @param method
+     * @param args
+     * @return
+     */
     @Override
-    public Object send(Method method, Object[] args) {
+    public Future<Object> send(Method method, Object[] args) {
         Class<?> returnType = method.getReturnType();
         var needReturn = returnType.equals(Void.TYPE) ? 0 : 1;
         RpcRequest rpcRequest = new RpcRequest(method.hashCode(), List.of(args), needReturn);
@@ -53,6 +64,12 @@ public class HttpSender implements SenderInterface {
 
     private static final MediaType mediaType = MediaType.parse("application/octet-stream");
 
+    /**
+     * 根据RpcRequest构建OkHTTP的Request。
+     * @param rpcRequest
+     * @return
+     * @throws SerializationException
+     */
     private Request buildOkHttpRequest(RpcRequest rpcRequest) throws SerializationException {
         byte[] serialize = dataSerialization.serialize(rpcRequest);
         RequestBody requestBody = RequestBody.create(mediaType, serialize);
