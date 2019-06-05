@@ -84,7 +84,7 @@ public class RpcClientFactory {
      */
     private boolean checkDuplicateClass(Class<Object> clazz) {
         return nameMap.containsKey(clazz.getCanonicalName());
-
     }
+
 
 }

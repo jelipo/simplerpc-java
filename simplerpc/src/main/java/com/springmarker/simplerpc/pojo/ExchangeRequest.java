@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 /**
  * 定义一个基本通讯Request对象。
  *
- * @author Frank
+ * @author Springmarker
  * @date 2018/10/24 23:02
  */
 @Data

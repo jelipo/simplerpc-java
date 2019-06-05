@@ -1,12 +1,10 @@
 package com.springmarker.simplerpc.protocol.serialization.json;
 
-import com.springmarker.simplerpc.pojo.RpcRequest;
 import com.springmarker.simplerpc.pojo.RpcResponse;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 /**
  * @author: Springmarker
@@ -15,6 +13,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class RpcResponseJsonExchange extends RpcResponse {
 
     private Class resultClass;

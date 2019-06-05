@@ -15,8 +15,17 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RpcRequest {
-    
+
     private int methodHashCode;
     private List<Object> paramList;
+
+    /**
+     * 是否需要返回值。{@code 1} 需要，else {@code 0} 。
+     */
     private int needReturn;
+
+    /**
+     * 是否使用异步方式。{@code 1} 异步方式，else {@code 0} 。
+     */
+    private int async;
 }

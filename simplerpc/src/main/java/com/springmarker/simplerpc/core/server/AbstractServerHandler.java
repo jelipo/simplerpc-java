@@ -5,7 +5,7 @@ import com.springmarker.simplerpc.pojo.ServerConfig;
 /**
  * 服务端处理器的抽象类，主要用来定义构造方法。
  *
- * @author Frank
+ * @author Springmarker
  * @date 2018/10/28 22:40
  */
 public abstract class AbstractServerHandler{

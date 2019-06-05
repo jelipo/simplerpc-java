@@ -5,7 +5,7 @@ import com.springmarker.simplerpc.core.client.SenderInterface;
 import com.springmarker.simplerpc.protocol.net.http.HttpSender;
 
 /**
- * @author Frank
+ * @author Springmarker
  * @date 2018/10/21 22:44
  */
 

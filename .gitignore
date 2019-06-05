@@ -91,6 +91,7 @@ fabric.properties
 # IntelliJ project files
 .idea
 *.iml
+*.ipr
 out
 gen
 ### Kotlin template

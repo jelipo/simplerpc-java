@@ -5,9 +5,11 @@ import com.springmarker.simplerpc.pojo.RpcResponse;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 /**
- * @author Frank
+ * @author Springmarker
  * @date 2018/10/28 21:00
  */
 public class Receiver {
@@ -24,9 +26,17 @@ public class Receiver {
         RpcResponse rpcResponse = new RpcResponse();
         try {
             Object result = method.invoke(obj, request.getParamList());
+
+            //针对返回值为CompletableFuture类型的结果特殊处理，等待其完成后获取结果后再继续执行。
+            if (result instanceof CompletableFuture) {
+                result = ((CompletableFuture) result).get();
+            }
+
             rpcResponse.setResult(result);
-        } catch (IllegalAccessException | InvocationTargetException e) {
+        } catch (IllegalAccessException | InvocationTargetException | ExecutionException e) {
             rpcResponse.setException(1);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
         return rpcResponse;
     }

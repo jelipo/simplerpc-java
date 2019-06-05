@@ -1,23 +1,33 @@
 package com.springmarker.simplerpc.core.client;
 
-import java.lang.reflect.Method;
-import java.util.concurrent.Future;
+import com.springmarker.simplerpc.pojo.RpcRequest;
+
+import java.util.concurrent.CompletableFuture;
 
 /**
  * 此接口用于定义如何发送消息，主要定义
  *
- * @author Frank
+ * @author Springmarker
  * @date 2018/10/16 22:29
  */
 public interface SenderInterface {
 
     /**
-     * 此接口实现具体发送。
-     * @param method
-     * @param args
+     * 实现具体发送,并同步返回结果。
+     *
+     * @param rpcRequest
      * @return
      */
-    Future<Object> send(Method method, Object[] args);
+    Object syncSend(RpcRequest rpcRequest);
+
+
+    /**
+     * 实现具体的异步发送,并返回CompletableFuture。
+     *
+     * @param rpcRequest
+     * @return
+     */
+    CompletableFuture<Object> asyncSend(RpcRequest rpcRequest);
 
 
 }
