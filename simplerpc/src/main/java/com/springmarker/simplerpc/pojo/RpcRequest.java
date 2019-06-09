@@ -17,6 +17,7 @@ import java.util.List;
 public class RpcRequest {
 
     private int methodHashCode;
+
     private List<Object> paramList;
 
     /**

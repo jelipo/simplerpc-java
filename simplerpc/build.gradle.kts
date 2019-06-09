@@ -21,6 +21,7 @@ dependencies {
 
     compile("com.github.ben-manes.caffeine:caffeine:2.7.0")
     implementation("cglib:cglib:3.2.12")
+
     compileOnly("org.projectlombok:lombok:$lombokVersion")
     annotationProcessor("org.projectlombok:lombok:$lombokVersion")
     testAnnotationProcessor("org.projectlombok:lombok:$lombokVersion")
@@ -28,6 +29,7 @@ dependencies {
     testCompile("org.junit.jupiter:junit-jupiter-api:5.4.2")
 
     //序列化
+    compileOnly("com.esotericsoftware:kryo:5.0.0-RC4")
     compileOnly("com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion")
     compileOnly("com.fasterxml.jackson.core:jackson-core:$jacksonVersion")
     compileOnly("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")

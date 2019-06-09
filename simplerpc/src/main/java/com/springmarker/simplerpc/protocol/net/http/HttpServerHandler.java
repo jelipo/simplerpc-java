@@ -25,7 +25,8 @@ public class HttpServerHandler extends AbstractServerHandler {
         HttpServer httpServer = HttpServer.create(new InetSocketAddress(super.config.getPort()), 0);
         super.proxyServerCore.handleMethod(
                 new ExchangeRequest(1, 1,
-                        new RpcRequest(32, null, 0)));
+                        new RpcRequest(32, null, 0, 0)));
+        //TODO
     }
 
 }

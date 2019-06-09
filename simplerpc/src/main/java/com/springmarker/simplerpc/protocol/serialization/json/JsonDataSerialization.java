@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.springmarker.simplerpc.core.server.RpcServerFactory;
 import com.springmarker.simplerpc.exception.DeserializationException;
 import com.springmarker.simplerpc.exception.SerializationException;
+import com.springmarker.simplerpc.pojo.ExchangeRequest;
 import com.springmarker.simplerpc.pojo.RpcRequest;
 import com.springmarker.simplerpc.pojo.RpcResponse;
 import com.springmarker.simplerpc.protocol.serialization.DataSerialization;
@@ -39,9 +40,9 @@ public class JsonDataSerialization implements DataSerialization {
     }
 
     @Override
-    public byte[] serialize(RpcRequest request) throws SerializationException {
+    public byte[] serialize(ExchangeRequest exchangeRequest) throws SerializationException {
         try {
-            RpcRequestJsonExchange requestWithExchange = change(request);
+            RpcRequestJsonExchange requestWithExchange = change(exchangeRequest.getRpcRequest());
             return objectMapper.writeValueAsBytes(requestWithExchange);
         } catch (IOException e) {
             throw new SerializationException("Json serialization failed , message:" + e.getMessage(), e.getCause());
@@ -58,27 +59,29 @@ public class JsonDataSerialization implements DataSerialization {
         }
     }
 
+
     @Override
-    public RpcRequest deserializeRequest(byte[] bytes) throws DeserializationException {
-        try {
-            RpcRequestJsonExchange requestJsonExchange = objectMapper.readValue(bytes, RpcRequestJsonExchange.class);
-            List<String> exchangeParams = requestJsonExchange.getExchangeStrParams();
-            if (exchangeParams != null) {
-                List<Object> paramList = new ArrayList<>(exchangeParams.size());
-                Class<?>[] parameterTypes = rpcServerFactory
-                        .getImplMethodByInterfaceMethodHashcode(requestJsonExchange.hashCode())
-                        .getParameterTypes();
-                for (int i = 0; i < exchangeParams.size(); i++) {
-                    Class clazz = parameterTypes[i];
-                    Object paramObj = changeType(clazz, exchangeParams.get(i));
-                    paramList.add(paramObj);
-                }
-                requestJsonExchange.setParamList(paramList);
-            }
-            return requestJsonExchange;
-        } catch (IOException e) {
-            throw new DeserializationException("Json serialization failed , message:" + e.getMessage(), e.getCause());
-        }
+    public ExchangeRequest deserializeRequest(byte[] bytes) throws DeserializationException {
+        return null;
+//        try {
+//            RpcRequestJsonExchange requestJsonExchange = objectMapper.readValue(bytes, RpcRequestJsonExchange.class);
+//            List<String> exchangeParams = requestJsonExchange.getExchangeStrParams();
+//            if (exchangeParams != null) {
+//                List<Object> paramList = new ArrayList<>(exchangeParams.size());
+//                Class<?>[] parameterTypes = rpcServerFactory
+//                        .getImplMethodByInterfaceMethodHashcode(requestJsonExchange.hashCode())
+//                        .getParameterTypes();
+//                for (int i = 0; i < exchangeParams.size(); i++) {
+//                    Class clazz = parameterTypes[i];
+//                    Object paramObj = changeType(clazz, exchangeParams.get(i));
+//                    paramList.add(paramObj);
+//                }
+//                requestJsonExchange.setParamList(paramList);
+//            }
+//            return requestJsonExchange;
+//        } catch (IOException e) {
+//            throw new DeserializationException("Json serialization failed , message:" + e.getMessage(), e.getCause());
+//        }
     }
 
     @Override

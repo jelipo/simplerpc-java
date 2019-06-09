@@ -1,5 +1,8 @@
 package com.springmarker.simplerpc.protocol.net.http;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.springmarker.simplerpc.core.client.SenderInterface;
 import com.springmarker.simplerpc.core.client.SyncCallback;
 import com.springmarker.simplerpc.enums.FailedType;
@@ -11,7 +14,9 @@ import com.springmarker.simplerpc.protocol.serialization.DataSerialization;
 import okhttp3.*;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Springmarker
@@ -36,6 +41,13 @@ public class HttpSender implements SenderInterface {
         this.dataSerialization = dataSerialization;
     }
 
+    /**
+     * 专门缓存Method的缓存，
+     */
+    private Cache<Integer, Method> cache = Caffeine.newBuilder()
+            .maximumSize(10000)
+            .expireAfterWrite(5, TimeUnit.MINUTES)
+            .build();
 
     private static final MediaType mediaType = MediaType.parse("application/octet-stream");
 
@@ -63,6 +75,11 @@ public class HttpSender implements SenderInterface {
         return send(rpcRequest);
     }
 
+    /**
+     * 发送的主方法
+     * @param rpcRequest
+     * @return
+     */
     private CompletableFuture<Object> send(RpcRequest rpcRequest) {
         CompletableFuture<Object> future = new CompletableFuture<>();
         Request request;
