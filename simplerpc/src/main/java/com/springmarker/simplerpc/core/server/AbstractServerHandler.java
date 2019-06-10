@@ -1,6 +1,7 @@
 package com.springmarker.simplerpc.core.server;
 
 import com.springmarker.simplerpc.pojo.ServerConfig;
+import com.springmarker.simplerpc.protocol.serialization.DataSerialization;
 
 /**
  * 服务端处理器的抽象类，主要用来定义构造方法。
@@ -8,15 +9,18 @@ import com.springmarker.simplerpc.pojo.ServerConfig;
  * @author Springmarker
  * @date 2018/10/28 22:40
  */
-public abstract class AbstractServerHandler{
+public abstract class AbstractServerHandler {
 
     protected ServerConfig config;
 
     protected ProxyServerCore proxyServerCore;
 
-    public AbstractServerHandler(ServerConfig config, ProxyServerCore proxyServerCore) {
+    protected DataSerialization dataSerialization;
+
+    public AbstractServerHandler(ServerConfig config, ProxyServerCore proxyServerCore, DataSerialization dataSerialization) {
         this.config = config;
         this.proxyServerCore = proxyServerCore;
+        this.dataSerialization = dataSerialization;
     }
 
     /**

@@ -18,7 +18,7 @@ public class RpcRequest {
 
     private int methodHashCode;
 
-    private List<Object> paramList;
+    private ArrayList<Object> paramList;
 
     /**
      * 是否需要返回值。{@code 1} 需要，else {@code 0} 。

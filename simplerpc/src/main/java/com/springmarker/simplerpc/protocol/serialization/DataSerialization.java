@@ -1,10 +1,8 @@
 package com.springmarker.simplerpc.protocol.serialization;
 
-import com.springmarker.simplerpc.core.server.RpcServerFactory;
 import com.springmarker.simplerpc.exception.DeserializationException;
 import com.springmarker.simplerpc.exception.SerializationException;
 import com.springmarker.simplerpc.pojo.ExchangeRequest;
-import com.springmarker.simplerpc.pojo.RpcRequest;
 import com.springmarker.simplerpc.pojo.RpcResponse;
 
 /**
@@ -15,15 +13,13 @@ import com.springmarker.simplerpc.pojo.RpcResponse;
  */
 public interface DataSerialization {
 
-    void setRpcServerFactory(RpcServerFactory rpcServerFactory);
-
     /**
      * 序列化
      *
-     * @param request 要序列化的对象
+     * @param exchangeRequest 要序列化的对象
      * @return
      */
-    byte[] serialize(ExchangeRequest request) throws SerializationException;
+    byte[] serialize(ExchangeRequest exchangeRequest) throws SerializationException;
 
     /**
      * 序列化

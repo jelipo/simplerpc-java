@@ -2,12 +2,12 @@ package com.springmarker.simplerpc.protocol.net.http;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.springmarker.simplerpc.core.client.SenderInterface;
 import com.springmarker.simplerpc.core.client.SyncCallback;
 import com.springmarker.simplerpc.enums.FailedType;
 import com.springmarker.simplerpc.exception.DeserializationException;
 import com.springmarker.simplerpc.exception.SerializationException;
+import com.springmarker.simplerpc.pojo.ExchangeRequest;
 import com.springmarker.simplerpc.pojo.RpcRequest;
 import com.springmarker.simplerpc.pojo.RpcResponse;
 import com.springmarker.simplerpc.protocol.serialization.DataSerialization;
@@ -59,15 +59,31 @@ public class HttpSender implements SenderInterface {
      * @throws SerializationException
      */
     private Request buildOkHttpRequest(RpcRequest rpcRequest) throws SerializationException {
-        byte[] serialize = dataSerialization.serialize(rpcRequest);
+        byte[] serialize = dataSerialization.serialize(new ExchangeRequest(1, 1, rpcRequest));
         RequestBody requestBody = RequestBody.create(mediaType, serialize);
         return new Request.Builder().url(url).post(requestBody).build();
     }
 
     @Override
     public Object syncSend(RpcRequest rpcRequest) {
-        CompletableFuture<Object> future = send(rpcRequest);
-        return future.join();
+        Request request = null;
+
+        try {
+            request = buildOkHttpRequest(rpcRequest);
+            Call call = okHttpClient.newCall(request);
+            Response execute = call.execute();
+            byte[] bytes = execute.body().bytes();
+            RpcResponse rpcResponse = dataSerialization.deserializeResponse(bytes);
+            return rpcResponse.getResult();
+        } catch (SerializationException | DeserializationException | IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+
+//
+//        CompletableFuture<Object> future = send(rpcRequest);
+//        Object join = future.join();
+//        return join;
     }
 
     @Override
@@ -77,6 +93,7 @@ public class HttpSender implements SenderInterface {
 
     /**
      * 发送的主方法
+     *
      * @param rpcRequest
      * @return
      */
@@ -137,11 +154,12 @@ public class HttpSender implements SenderInterface {
          * @return
          */
         private Object deserializeResponse(Response response) throws DeserializationException, IOException {
-            //TODO
+            if (response.body() == null) {
+                throw new DeserializationException("Http body is null");
+            }
             byte[] bytes = response.body().bytes();
             RpcResponse rpcResponse = dataSerialization.deserializeResponse(bytes);
-            rpcResponse.getResult();
-            return null;
+            return rpcResponse.getResult();
         }
     }
 }

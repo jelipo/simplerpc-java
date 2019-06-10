@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.springmarker.simplerpc.core.server.RpcServerFactory;
 import com.springmarker.simplerpc.exception.DeserializationException;
 import com.springmarker.simplerpc.exception.SerializationException;
 import com.springmarker.simplerpc.pojo.ExchangeRequest;
@@ -13,19 +12,19 @@ import com.springmarker.simplerpc.pojo.RpcResponse;
 import com.springmarker.simplerpc.protocol.serialization.DataSerialization;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * JSON序列化。
+ * 抛弃，暂不可用。
+ *
  * @author: Springmarker
  * @date: 2019/5/28 19:22
  */
 public class JsonDataSerialization implements DataSerialization {
 
     private ObjectMapper objectMapper = new ObjectMapper();
-
-    private RpcServerFactory rpcServerFactory;
 
     public JsonDataSerialization() {
         objectMapper = objectMapper.findAndRegisterModules();
@@ -34,10 +33,6 @@ public class JsonDataSerialization implements DataSerialization {
 
     }
 
-    @Override
-    public void setRpcServerFactory(RpcServerFactory rpcServerFactory) {
-        this.rpcServerFactory = rpcServerFactory;
-    }
 
     @Override
     public byte[] serialize(ExchangeRequest exchangeRequest) throws SerializationException {

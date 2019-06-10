@@ -6,6 +6,7 @@ import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -58,6 +59,6 @@ public class ProxyClientCore implements MethodInterceptor {
         Class<?> returnType = method.getReturnType();
         int needReturn = returnType.equals(Void.TYPE) ? 0 : 1;
         int async = isAsync ? 1 : 0;
-        return new RpcRequest(method.hashCode(), List.of(args), needReturn, async);
+        return new RpcRequest(method.hashCode(), new ArrayList(List.of(args)), needReturn, async);
     }
 }

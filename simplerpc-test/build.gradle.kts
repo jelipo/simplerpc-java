@@ -30,8 +30,8 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
 
     //网络协议
-    compileOnly("io.netty:netty-all:4.1.36.Final")
-    compileOnly("com.squareup.okhttp3:okhttp:3.14.2")
+    implementation("io.netty:netty-all:4.1.36.Final")
+    implementation("com.squareup.okhttp3:okhttp:3.14.2")
 }
 
 configure<JavaPluginConvention> {

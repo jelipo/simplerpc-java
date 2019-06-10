@@ -21,9 +21,9 @@ public class RpcServerFactory {
      */
     private ClassCteatorFactory classCteatorFactory;
 
-    public RpcServerFactory(List<Class<Object>> implClassList, List<Class<Object>> interfaceClassList) {
+    public RpcServerFactory(List<Class> implClassList, List<Class> interfaceClassList) {
         classCteatorFactory = new ClassCteatorFactory(interfaceClassList);
-        for (Class<Object> objectClass : implClassList) {
+        for (Class objectClass : implClassList) {
             try {
                 add(objectClass);
             } catch (ImplClassAdditionFailedException e) {
@@ -78,6 +78,7 @@ public class RpcServerFactory {
             }
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException |
                 InstantiationException | NotRpcImplClassException | DuplicateClassException e) {
+            e.printStackTrace();
             throw new ImplClassAdditionFailedException(e.getMessage(), e.getCause(), clazz.getCanonicalName());
         }
     }
@@ -105,7 +106,7 @@ public class RpcServerFactory {
          */
         private HashMap<Integer, Method> implMethodMapByInterfaceMethodHashcode = new HashMap<>();
 
-        ClassCteatorFactory(List<Class<Object>> interfaceClass) {
+        ClassCteatorFactory(List<Class> interfaceClass) {
             this.interfaceClassSet = new HashSet<>(interfaceClass);
         }
 
@@ -153,7 +154,7 @@ public class RpcServerFactory {
             objectMapByImplClass.put(implClass, obj);
             implClassMapByInterfaceClass.put(interfaceClass, implClass);
             for (Method interfaceMethod : interfaceClass.getMethods()) {
-                Method implClassMethod = implClass.getMethod(interfaceClass.getName(), interfaceMethod.getParameterTypes());
+                Method implClassMethod = implClass.getMethod(interfaceMethod.getName(), interfaceMethod.getParameterTypes());
                 implMethodMapByInterfaceMethodHashcode.put(interfaceMethod.hashCode(), implClassMethod);
             }
         }
