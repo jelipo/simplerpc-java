@@ -9,7 +9,7 @@ import com.springmarker.simplerpc.protocol.serialization.DataSerialization;
  * @author Springmarker
  * @date 2018/10/28 22:40
  */
-public abstract class AbstractServerHandler {
+public abstract class AbstractServer {
 
     protected ServerConfig config;
 
@@ -17,7 +17,7 @@ public abstract class AbstractServerHandler {
 
     protected DataSerialization dataSerialization;
 
-    public AbstractServerHandler(ServerConfig config, ProxyServerCore proxyServerCore, DataSerialization dataSerialization) {
+    public AbstractServer(ServerConfig config, ProxyServerCore proxyServerCore, DataSerialization dataSerialization) {
         this.config = config;
         this.proxyServerCore = proxyServerCore;
         this.dataSerialization = dataSerialization;

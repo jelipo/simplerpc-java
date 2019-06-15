@@ -1,16 +1,10 @@
 package com.springmarker.simplerpc.core.server;
 
-import com.springmarker.simplerpc.pojo.ExchangeRequest;
+import com.springmarker.simplerpc.pojo.RpcRequest;
 import com.springmarker.simplerpc.pojo.RpcResponse;
-import com.springmarker.simplerpc.pojo.ServerConfig;
-import net.sf.cglib.proxy.MethodProxy;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.concurrent.CompletableFuture;
 
 
 /**
@@ -25,10 +19,15 @@ public class ProxyServerCore {
         this.receiver = receiver;
     }
 
-    public RpcResponse handleMethod(ExchangeRequest baseExchangeRequest) {
-        ArrayList<String> objects = new ArrayList<>();
-        List<Integer> collect = objects.stream().map(Integer::valueOf).collect(Collectors.toUnmodifiableList());
-        return receiver.receive(baseExchangeRequest.getRpcRequest());
+    public RpcResponse handleMethod(RpcRequest rpcRequest) {
+        ArrayList<Object> paramList = rpcRequest.getParamList();
+        return receiver.receive(rpcRequest.getMethodHashCode(), rpcRequest.getParamList());
+    }
+
+    public void handleAsyncMethod(RpcRequest rpcRequest, CompletableFuture future) {
+        int methodHashCode = rpcRequest.getMethodHashCode();
+        ArrayList<Object> paramList = rpcRequest.getParamList();
+        receiver.receiveAsync(methodHashCode, paramList, future);
     }
 
 }

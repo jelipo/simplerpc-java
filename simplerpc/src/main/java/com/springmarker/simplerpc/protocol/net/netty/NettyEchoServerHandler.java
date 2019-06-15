@@ -1,14 +1,15 @@
 package com.springmarker.simplerpc.protocol.net.netty;
 
-import com.esotericsoftware.kryo.io.Input;
 import com.springmarker.simplerpc.core.server.ProxyServerCore;
+import com.springmarker.simplerpc.pojo.ExchangeRequest;
+import com.springmarker.simplerpc.pojo.RpcRequest;
+import com.springmarker.simplerpc.pojo.RpcResponse;
 import com.springmarker.simplerpc.protocol.serialization.DataSerialization;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * 主要用于处理Netty的Handler
@@ -30,8 +31,25 @@ public class NettyEchoServerHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         ByteBuf in = (ByteBuf) msg;
+        ExchangeRequest exchangeRequest = dataSerialization.deserializeRequest(in.array());
+        RpcRequest rpcRequest = exchangeRequest.getRpcRequest();
+        //判断是否是异步请求
+        if (rpcRequest.getAsync() == 0) {
+            RpcResponse rpcResponse = proxyServerCore.handleMethod(rpcRequest);
+            returnResult(ctx, rpcResponse);
+        } else {
+            CompletableFuture<RpcResponse> future = new CompletableFuture<>();
+            proxyServerCore.handleAsyncMethod(rpcRequest, future);
+            future.whenComplete((rpcResponse, throwable) -> {
+                returnResult(ctx, rpcResponse);
+            });
+        }
+        //TODO 能否使用异步待更改
+    }
 
-        super.channelRead(ctx, msg);
+    private void returnResult(ChannelHandlerContext ctx, RpcResponse rpcResponse) {
+        //TODO 返回值
+
     }
 
     @Override

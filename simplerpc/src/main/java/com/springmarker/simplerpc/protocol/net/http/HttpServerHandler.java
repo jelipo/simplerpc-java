@@ -1,6 +1,6 @@
 package com.springmarker.simplerpc.protocol.net.http;
 
-import com.springmarker.simplerpc.core.server.AbstractServerHandler;
+import com.springmarker.simplerpc.core.server.AbstractServer;
 import com.springmarker.simplerpc.core.server.ProxyServerCore;
 import com.springmarker.simplerpc.exception.DeserializationException;
 import com.springmarker.simplerpc.exception.SerializationException;
@@ -18,7 +18,7 @@ import java.net.InetSocketAddress;
  * @author Springmarker
  * @date 2018/10/28 20:59
  */
-public class HttpServerHandler extends AbstractServerHandler {
+public class HttpServerHandler extends AbstractServer {
 
 
     public HttpServerHandler(ServerConfig config, ProxyServerCore proxyServerCore, DataSerialization dataSerialization) {
