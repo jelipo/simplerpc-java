@@ -15,8 +15,8 @@ tasks {
 
 idea {
     project {
-        jdkName = "11"
-        languageLevel = IdeaLanguageLevel("11")
+        jdkName = "1.8"
+        languageLevel = IdeaLanguageLevel("1.8")
         vcs = "Git"
     }
 }

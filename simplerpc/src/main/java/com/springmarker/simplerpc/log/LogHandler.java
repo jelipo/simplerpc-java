@@ -8,10 +8,11 @@ public interface LogHandler {
 
     /**
      * 格式化
+     *
      * @param msg
      * @return
      */
-    private String formatTimeTag(String msg) {
+    static String formatTimeTag(String msg) {
         return "";
     }
 }

@@ -3,6 +3,7 @@ package com.springmarker.simplerpc.protocol.serialization;
 import com.springmarker.simplerpc.exception.DeserializationException;
 import com.springmarker.simplerpc.exception.SerializationException;
 import com.springmarker.simplerpc.pojo.ExchangeRequest;
+import com.springmarker.simplerpc.pojo.ExchangeResponse;
 import com.springmarker.simplerpc.pojo.RpcResponse;
 
 /**
@@ -24,10 +25,10 @@ public interface DataSerialization {
     /**
      * 序列化
      *
-     * @param response 要序列化的对象
+     * @param exchangeResponse 要序列化的对象
      * @return
      */
-    byte[] serialize(RpcResponse response) throws SerializationException;
+    byte[] serialize(ExchangeResponse exchangeResponse) throws SerializationException;
 
 
     /**
@@ -44,6 +45,6 @@ public interface DataSerialization {
      * @param bytes 反序列化的字节数组
      * @return
      */
-    RpcResponse deserializeResponse(byte[] bytes) throws DeserializationException;
+    ExchangeResponse deserializeResponse(byte[] bytes) throws DeserializationException;
 
 }

@@ -1,8 +1,7 @@
 package com.springmarker.simplerpc.enums;
 
 import com.springmarker.simplerpc.core.client.SenderInterface;
-
-import com.springmarker.simplerpc.protocol.net.http.HttpSender;
+import com.springmarker.simplerpc.protocol.net.netty.NettySender;
 
 /**
  * @author Springmarker
@@ -11,9 +10,9 @@ import com.springmarker.simplerpc.protocol.net.http.HttpSender;
 
 public enum ProtocolType {
     /**
-     * HTTP协议
+     * Netty协议
      */
-    HTTP(HttpSender.class);
+    NETTY(NettySender.class);
 
     ProtocolType(Class<? extends SenderInterface> senderImplClassPath) {
     }

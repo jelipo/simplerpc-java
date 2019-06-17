@@ -17,8 +17,9 @@ public interface SenderInterface {
      *
      * @param rpcRequest
      * @return
+     * @throws Exception 序列化/发送 可能出现的。
      */
-    Object syncSend(RpcRequest rpcRequest);
+    Object syncSend(RpcRequest rpcRequest) throws Exception;
 
 
     /**
@@ -27,7 +28,7 @@ public interface SenderInterface {
      * @param rpcRequest
      * @return
      */
-    CompletableFuture<Object> asyncSend(RpcRequest rpcRequest);
+    CompletableFuture<Object> asyncSend(RpcRequest rpcRequest) throws Exception;
 
 
 }

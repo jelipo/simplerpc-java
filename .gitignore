@@ -157,3 +157,5 @@ gen
 simplerpc/out/
 simplerpc/src/test/
 simplerpc-test/src
+# Project exclude paths
+/simplerpc/build/

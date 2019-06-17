@@ -7,6 +7,7 @@ import com.esotericsoftware.kryo.util.Pool;
 import com.springmarker.simplerpc.exception.DeserializationException;
 import com.springmarker.simplerpc.exception.SerializationException;
 import com.springmarker.simplerpc.pojo.ExchangeRequest;
+import com.springmarker.simplerpc.pojo.ExchangeResponse;
 import com.springmarker.simplerpc.pojo.RpcRequest;
 import com.springmarker.simplerpc.pojo.RpcResponse;
 import com.springmarker.simplerpc.protocol.serialization.DataSerialization;
@@ -29,7 +30,7 @@ public class KryoDataSerialization implements DataSerialization {
     /**
      * 将最大数量控制在可用核心数的2倍。
      */
-    private Pool<Kryo> kryoPool = new Pool<>(true, false,
+    private Pool<Kryo> kryoPool = new Pool<Kryo>(true, false,
             Runtime.getRuntime().availableProcessors() * 2) {
         @Override
         protected Kryo create() {
@@ -45,6 +46,7 @@ public class KryoDataSerialization implements DataSerialization {
             kryo.register(RpcRequest.class);
             kryo.register(ExchangeRequest.class);
             kryo.register(RpcResponse.class);
+            kryo.register(ExchangeResponse.class);
             return kryo;
         }
     };
@@ -59,7 +61,7 @@ public class KryoDataSerialization implements DataSerialization {
      * @param maxBufferSize
      */
     public KryoDataSerialization(int maxBufferSize) {
-        this.outputPool = new Pool<>(true, false) {
+        this.outputPool = new Pool<Output>(true, false) {
             @Override
             protected Output create() {
                 return new Output(OUTPUT_BUFFER_SIZE, maxBufferSize);
@@ -73,8 +75,8 @@ public class KryoDataSerialization implements DataSerialization {
     }
 
     @Override
-    public byte[] serialize(RpcResponse response) throws SerializationException {
-        return commonSerialize(response);
+    public byte[] serialize(ExchangeResponse exchangeResponse) throws SerializationException {
+        return commonSerialize(exchangeResponse);
     }
 
     /**
@@ -104,8 +106,8 @@ public class KryoDataSerialization implements DataSerialization {
     }
 
     @Override
-    public RpcResponse deserializeResponse(byte[] bytes) throws DeserializationException {
-        return (RpcResponse) commonDeserialize(bytes, RpcResponse.class);
+    public ExchangeResponse deserializeResponse(byte[] bytes) throws DeserializationException {
+        return (ExchangeResponse) commonDeserialize(bytes, ExchangeResponse.class);
     }
 
     /**

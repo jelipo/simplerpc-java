@@ -27,7 +27,7 @@ public class Receiver {
         Object obj = rpcServerFactory.getImplObjectByInterfaceClass(method.getDeclaringClass());
         RpcResponse rpcResponse = new RpcResponse();
         try {
-            Object result = method.invoke(obj, paramList);
+            Object result = method.invoke(obj, paramList.toArray());
 
 
             rpcResponse.setResult(result);
@@ -43,7 +43,7 @@ public class Receiver {
         RpcResponse rpcResponse = new RpcResponse();
         CompletableFuture futureResult = null;
         try {
-            futureResult = (CompletableFuture) method.invoke(obj, paramList);
+            futureResult = (CompletableFuture) method.invoke(obj, paramList.toArray());
         } catch (IllegalAccessException | InvocationTargetException e) {
             rpcResponse.setException(1);
             future.complete(rpcResponse);

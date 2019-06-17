@@ -7,6 +7,7 @@ import net.sf.cglib.proxy.MethodProxy;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -26,7 +27,7 @@ public class ProxyClientCore implements MethodInterceptor {
     /**
      * 处理同步方法
      */
-    private Object handleSyncRequest(Object obj, Method method, Object[] args, MethodProxy proxy) {
+    private Object handleSyncRequest(Object obj, Method method, Object[] args, MethodProxy proxy) throws Exception {
         RpcRequest rpcRequest = packageRpcRequest(method, args, false);
         return this.sender.syncSend(rpcRequest);
     }
@@ -34,7 +35,7 @@ public class ProxyClientCore implements MethodInterceptor {
     /**
      * 处理异步方法
      */
-    private CompletableFuture handleAsynRequest(Object obj, Method method, Object[] args, MethodProxy proxy) {
+    private CompletableFuture handleAsynRequest(Object obj, Method method, Object[] args, MethodProxy proxy) throws Exception {
         RpcRequest rpcRequest = packageRpcRequest(method, args, false);
         return this.sender.asyncSend(rpcRequest);
     }
@@ -49,7 +50,12 @@ public class ProxyClientCore implements MethodInterceptor {
             return handleSyncRequest(obj, method, args, proxy);
         } else {
             return CompletableFuture.supplyAsync(() -> {
-                Object result = handleSyncRequest(obj, method, args, proxy);
+                Object result = null;
+                try {
+                    result = handleSyncRequest(obj, method, args, proxy);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 return result;
             });
         }
@@ -59,6 +65,6 @@ public class ProxyClientCore implements MethodInterceptor {
         Class<?> returnType = method.getReturnType();
         int needReturn = returnType.equals(Void.TYPE) ? 0 : 1;
         int async = isAsync ? 1 : 0;
-        return new RpcRequest(method.hashCode(), new ArrayList(List.of(args)), needReturn, async);
+        return new RpcRequest(method.hashCode(), new ArrayList(Collections.singleton(args)), needReturn, async);
     }
 }

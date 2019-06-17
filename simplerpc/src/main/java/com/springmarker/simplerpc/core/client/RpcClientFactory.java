@@ -42,7 +42,7 @@ public class RpcClientFactory {
      * @return clazz实体代理对象
      */
     public <T> T get(Class<T> clazz) {
-        var any = nameMap.get(clazz.getName());
+        Object any = nameMap.get(clazz.getName());
         return (T) any;
     }
 
@@ -60,7 +60,7 @@ public class RpcClientFactory {
         if (!clazz.isInterface()) {
             throw new NotInterfaceException("${clazz.canonicalName} is not an interface.");
         }
-        var proxy = creatProxy(clazz);
+        Object proxy = creatProxy(clazz);
         nameMap.put(clazz.getCanonicalName(), proxy);
     }
 
@@ -71,7 +71,7 @@ public class RpcClientFactory {
      * @return 创建好的代理实体。
      */
     private Object creatProxy(Class<Object> clazz) {
-        var enhancer = new Enhancer();
+        Enhancer enhancer = new Enhancer();
         enhancer.setSuperclass(clazz);
         enhancer.setCallback(proxyCore);
         return enhancer.create();

@@ -10,6 +10,8 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
+import io.netty.handler.codec.LengthFieldPrepender;
 
 import java.net.InetSocketAddress;
 
@@ -21,32 +23,32 @@ import java.net.InetSocketAddress;
  */
 public class NettyServer extends AbstractServer {
 
-    private NettyEchoServerHandler echoServerHandler;
+    private NettyServerHandler serverHandler;
 
     public NettyServer(ServerConfig config, ProxyServerCore proxyServerCore, DataSerialization dataSerialization) {
         super(config, proxyServerCore, dataSerialization);
-        echoServerHandler = new NettyEchoServerHandler(proxyServerCore, dataSerialization);
+        serverHandler = new NettyServerHandler(proxyServerCore, dataSerialization);
     }
 
     @Override
     public void start() throws Exception {
         NioEventLoopGroup group = new NioEventLoopGroup();
-        try {
-            ServerBootstrap serverBootstrap = new ServerBootstrap();
-            serverBootstrap.group(group)
-                    .channel(NioServerSocketChannel.class)
-                    .localAddress(new InetSocketAddress(super.config.getPort()))
-                    .childHandler(new ChannelInitializer<SocketChannel>() {
-                        @Override
-                        protected void initChannel(SocketChannel ch) throws Exception {
-                            ch.pipeline().addLast(echoServerHandler);
-                        }
-                    });
-            ChannelFuture channelFuture = serverBootstrap.bind().sync();
-            channelFuture.channel().closeFuture().sync();
-        } finally {
-            group.shutdownGracefully().sync();
-        }
+
+        ServerBootstrap serverBootstrap = new ServerBootstrap();
+        serverBootstrap.group(group)
+                .channel(NioServerSocketChannel.class)
+                .localAddress(new InetSocketAddress(super.config.getPort()))
+                .childHandler(new ChannelInitializer<SocketChannel>() {
+                    @Override
+                    protected void initChannel(SocketChannel ch) throws Exception {
+                        LengthFieldBasedFrameDecoder decoder = new LengthFieldBasedFrameDecoder(10 * 1024, 0, 4, 0, 4);
+                        LengthFieldPrepender prepender = new LengthFieldPrepender(4);
+                        ch.pipeline().addLast(decoder);
+                        ch.pipeline().addLast(prepender);
+                        ch.pipeline().addLast(serverHandler);
+                    }
+                });
+        ChannelFuture channelFuture = serverBootstrap.bind().sync();
 
     }
 

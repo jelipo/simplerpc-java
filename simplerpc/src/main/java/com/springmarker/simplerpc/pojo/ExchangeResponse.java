@@ -5,22 +5,18 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 定义一个基本通讯Request对象。
- *
  * @author Springmarker
- * @date 2018/10/24 23:02
+ * @date 2019/6/17 21:38
  */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ExchangeRequest {
-
-    private int clientId;
+public class ExchangeResponse {
     /**
      * 识别请求和回应的ID。
+     * 正常id都应为正数，如果为负数，说明此ID不用处理。
      */
     private int id;
-    private RpcRequest rpcRequest;
 
-
+    private RpcResponse rpcResponse;
 }
