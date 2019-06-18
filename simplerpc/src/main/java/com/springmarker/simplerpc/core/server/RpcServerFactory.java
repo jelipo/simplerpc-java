@@ -3,6 +3,7 @@ package com.springmarker.simplerpc.core.server;
 import com.springmarker.simplerpc.exception.DuplicateClassException;
 import com.springmarker.simplerpc.exception.ImplClassAdditionFailedException;
 import com.springmarker.simplerpc.exception.NotRpcImplClassException;
+import com.springmarker.simplerpc.util.MethodHashcodeUtil;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -39,7 +40,7 @@ public class RpcServerFactory {
      * @return Rpc接口实现类的某个方法。
      */
     public Method getImplMethodByInterfaceMethod(Method method) {
-        return classCteatorFactory.getImplMethodByInterfaceMethod(method.hashCode());
+        return classCteatorFactory.getImplMethodByInterfaceMethod(MethodHashcodeUtil.methodHashcode(method));
     }
 
     /**
@@ -155,7 +156,7 @@ public class RpcServerFactory {
             implClassMapByInterfaceClass.put(interfaceClass, implClass);
             for (Method interfaceMethod : interfaceClass.getMethods()) {
                 Method implClassMethod = implClass.getMethod(interfaceMethod.getName(), interfaceMethod.getParameterTypes());
-                implMethodMapByInterfaceMethodHashcode.put(interfaceMethod.hashCode(), implClassMethod);
+                implMethodMapByInterfaceMethodHashcode.put(MethodHashcodeUtil.methodHashcode(interfaceMethod), implClassMethod);
             }
         }
     }

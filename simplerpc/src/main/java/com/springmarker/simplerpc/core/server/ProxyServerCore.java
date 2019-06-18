@@ -20,7 +20,6 @@ public class ProxyServerCore {
     }
 
     public RpcResponse handleMethod(RpcRequest rpcRequest) {
-        ArrayList<Object> paramList = rpcRequest.getParamList();
         return receiver.receive(rpcRequest.getMethodHashCode(), rpcRequest.getParamList());
     }
 

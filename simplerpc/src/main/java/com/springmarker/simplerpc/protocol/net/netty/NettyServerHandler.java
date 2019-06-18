@@ -2,10 +2,7 @@ package com.springmarker.simplerpc.protocol.net.netty;
 
 import com.springmarker.simplerpc.core.server.ProxyServerCore;
 import com.springmarker.simplerpc.exception.SerializationException;
-import com.springmarker.simplerpc.pojo.ExchangeRequest;
-import com.springmarker.simplerpc.pojo.ExchangeResponse;
-import com.springmarker.simplerpc.pojo.RpcRequest;
-import com.springmarker.simplerpc.pojo.RpcResponse;
+import com.springmarker.simplerpc.pojo.*;
 import com.springmarker.simplerpc.protocol.serialization.DataSerialization;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -53,11 +50,11 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
             } else {
                 CompletableFuture<RpcResponse> future = new CompletableFuture<>();
                 proxyServerCore.handleAsyncMethod(rpcRequest, future);
-                future.whenComplete((rpcResponse, throwable) -> {
-                    returnResult(ctx, new ExchangeResponse(nettyId, rpcResponse));
-                });
+                RpcResponse rpcResponse = future.get();
+                returnResult(ctx, new ExchangeResponse(nettyId, rpcResponse));
             }
-            //TODO 能否使用异步待更改
+        } catch (Exception e) {
+            returnResult(ctx, new ExchangeResponse());
         } finally {
             ReferenceCountUtil.release(msg);
         }
@@ -77,7 +74,7 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
         } catch (SerializationException e) {
             try {
                 exchangeResponse.getRpcResponse().setResult(null);
-                exchangeResponse.getRpcResponse().setException(2);
+                exchangeResponse.getRpcResponse().setException(ExceptionType.SERIALIZED_EXCEPTION);
                 rpcResponseBytes = dataSerialization.serialize(exchangeResponse);
             } catch (SerializationException ex) {
                 ex.printStackTrace();
@@ -100,7 +97,7 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
      */
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        ExchangeResponse exchangeResponse = new ExchangeResponse(-1, new RpcResponse(null, 2));
+        ExchangeResponse exchangeResponse = new ExchangeResponse(-1, new RpcResponse(null, ExceptionType.RPC_INNER_EXCEPTION));
         returnResult(ctx, exchangeResponse);
         cause.printStackTrace();
     }

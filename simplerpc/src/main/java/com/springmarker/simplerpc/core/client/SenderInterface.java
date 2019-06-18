@@ -16,8 +16,8 @@ public interface SenderInterface {
      * 实现具体发送,并同步返回结果。
      *
      * @param rpcRequest
-     * @return
-     * @throws Exception 序列化/发送 可能出现的。
+     * @return RPC调用完成后返回的执行结果。
+     * @throws Exception 序列化/发送 可能出现的异常。
      */
     Object syncSend(RpcRequest rpcRequest) throws Exception;
 
@@ -26,7 +26,8 @@ public interface SenderInterface {
      * 实现具体的异步发送,并返回CompletableFuture。
      *
      * @param rpcRequest
-     * @return
+     * @return RPC信息发送后返回的 {@link CompletableFuture}。
+     * @throws Exception 序列化/发送 可能出现的异常。
      */
     CompletableFuture<Object> asyncSend(RpcRequest rpcRequest) throws Exception;
 

@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class RpcClientFactory {
 
     private SenderInterface sender;
-    private List<Class<Object>> classList;
+    private List<Class> classList;
 
     private ProxyClientCore proxyCore;
     /**
@@ -22,15 +22,15 @@ public class RpcClientFactory {
      */
     private ConcurrentHashMap<String, Object> nameMap = new ConcurrentHashMap<>();
 
-    public RpcClientFactory(SenderInterface sender, List<Class<Object>> classList) {
+    public RpcClientFactory(SenderInterface sender, List<Class> classList) {
         this.sender = sender;
         this.classList = classList;
-        proxyCore = new ProxyClientCore(sender);
+        this.proxyCore = new ProxyClientCore(sender);
         for (Class<Object> objectClass : classList) {
             try {
                 add(objectClass);
             } catch (DuplicateClassException | NotInterfaceException ignored) {
-                System.out.println("");
+                System.out.println("some");
             }
         }
     }
