@@ -7,6 +7,7 @@ import com.springmarker.simplerpc.pojo.ExchangeResponse;
 import com.springmarker.simplerpc.pojo.RpcResponse;
 import com.springmarker.simplerpc.protocol.serialization.DataSerialization;
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
@@ -18,6 +19,7 @@ import java.util.concurrent.CompletableFuture;
  * @author Springmarker
  * @date 2019/6/15 12:50
  */
+@ChannelHandler.Sharable
 class NettySenderHandler extends SimpleChannelInboundHandler<ByteBuf> {
 
     private DataSerialization dataSerialization;

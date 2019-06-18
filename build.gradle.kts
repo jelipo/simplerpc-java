@@ -16,7 +16,11 @@ tasks {
 idea {
     project {
         jdkName = "1.8"
-        languageLevel = IdeaLanguageLevel("1.8")
+        languageLevel = IdeaLanguageLevel("8")
         vcs = "Git"
     }
+}
+
+configure<JavaPluginConvention> {
+    sourceCompatibility = JavaVersion.VERSION_1_8
 }

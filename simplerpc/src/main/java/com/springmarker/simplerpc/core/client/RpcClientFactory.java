@@ -4,6 +4,7 @@ import com.springmarker.simplerpc.exception.DuplicateClassException;
 import com.springmarker.simplerpc.exception.NotInterfaceException;
 import net.sf.cglib.proxy.Enhancer;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -14,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class RpcClientFactory {
 
     private SenderInterface sender;
-    private List<Class> classList;
+    private Collection<Class> classList;
 
     private ProxyClientCore proxyCore;
     /**
@@ -22,11 +23,11 @@ public class RpcClientFactory {
      */
     private ConcurrentHashMap<String, Object> nameMap = new ConcurrentHashMap<>();
 
-    public RpcClientFactory(SenderInterface sender, List<Class> classList) {
+    public RpcClientFactory(SenderInterface sender, Collection<Class> classList) {
         this.sender = sender;
         this.classList = classList;
         this.proxyCore = new ProxyClientCore(sender);
-        for (Class<Object> objectClass : classList) {
+        for (Class objectClass : classList) {
             try {
                 add(objectClass);
             } catch (DuplicateClassException | NotInterfaceException ignored) {

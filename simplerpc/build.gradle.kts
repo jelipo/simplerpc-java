@@ -27,6 +27,9 @@ dependencies {
     testAnnotationProcessor("org.projectlombok:lombok:$lombokVersion")
     testCompileOnly("org.projectlombok:lombok:$lombokVersion")
     testCompile("org.junit.jupiter:junit-jupiter-api:5.4.2")
+    //用于扫描注解
+    compile("org.reflections:reflections:0.9.11")
+
 
     //序列化
     compileOnly("com.esotericsoftware:kryo:5.0.0-RC4")

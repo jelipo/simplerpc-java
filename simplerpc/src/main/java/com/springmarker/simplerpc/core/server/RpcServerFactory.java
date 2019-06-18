@@ -7,6 +7,7 @@ import com.springmarker.simplerpc.util.MethodHashcodeUtil;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -22,7 +23,7 @@ public class RpcServerFactory {
      */
     private ClassCteatorFactory classCteatorFactory;
 
-    public RpcServerFactory(List<Class> implClassList, List<Class> interfaceClassList) {
+    public RpcServerFactory(Collection<Class> implClassList, Collection<Class> interfaceClassList) {
         classCteatorFactory = new ClassCteatorFactory(interfaceClassList);
         for (Class objectClass : implClassList) {
             try {
@@ -107,7 +108,7 @@ public class RpcServerFactory {
          */
         private HashMap<Integer, Method> implMethodMapByInterfaceMethodHashcode = new HashMap<>();
 
-        ClassCteatorFactory(List<Class> interfaceClass) {
+        ClassCteatorFactory(Collection<Class> interfaceClass) {
             this.interfaceClassSet = new HashSet<>(interfaceClass);
         }
 
