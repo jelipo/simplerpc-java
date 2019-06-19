@@ -33,13 +33,9 @@ dependencies {
 
     //序列化
     compileOnly("com.esotericsoftware:kryo:5.0.0-RC4")
-    compileOnly("com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion")
-    compileOnly("com.fasterxml.jackson.core:jackson-core:$jacksonVersion")
-    compileOnly("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
 
     //网络协议
     compileOnly("io.netty:netty-all:4.1.36.Final")
-    compileOnly("com.squareup.okhttp3:okhttp:3.14.2")
 }
 
 configure<JavaPluginConvention> {

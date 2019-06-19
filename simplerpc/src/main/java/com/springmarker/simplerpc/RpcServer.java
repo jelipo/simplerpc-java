@@ -16,6 +16,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
+ * 启动Rpc服务端的主要配置和启动类。
+ *
  * @author Springmarker
  * @date 2019/6/18 20:31
  */
@@ -42,23 +44,26 @@ public class RpcServer {
         return this;
     }
 
-    public RpcServer start() {
+    /**
+     * 将Rpc Server启动，本方法是同步方法，会等待启动完成。
+     */
+    public RpcServer start() throws Exception {
         RpcServerFactory rpcServerFactory = new RpcServerFactory(this.rpcInterfaceImplList, this.rpcInterfaceList);
         ProxyServerCore proxyServerCore = new ProxyServerCore(new Receiver(rpcServerFactory));
         ServerConfig serverConfig = new ServerConfig();
         serverConfig.setPort(port);
         NettyServer httpServerHandler = new NettyServer(serverConfig, proxyServerCore, new KryoDataSerialization(10 * 1024));
-        try {
-            httpServerHandler.start();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        httpServerHandler.start();
         return this;
     }
 
+
+    /**
+     * 根据给定的class路径和注解类，扫描相应被注解的类。
+     */
     private Set<Class<?>> findRpcClasses(String classesPath, Class<? extends Annotation> annotation) {
         Reflections reflections = new Reflections(classesPath);
-        Set<Class<?>> classSet = reflections.getTypesAnnotatedWith(annotation,true);
+        Set<Class<?>> classSet = reflections.getTypesAnnotatedWith(annotation, true);
         return classSet.stream()
                 //过滤掉内部类、匿名类、本地类
                 .filter(aClass -> (!(aClass.isAnonymousClass() || aClass.isMemberClass() || aClass.isLocalClass())))

@@ -12,6 +12,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
+ * 启动Rpc客户端的主要启动类。
+ *
  * @author Springmarker
  * @date 2019/6/15 20:30
  */
@@ -39,17 +41,32 @@ public class RpcClient {
         return this;
     }
 
+    /**
+     * 连接Rpc Server，同步操作，会等待完成连接完成。
+     *
+     * @return
+     * @throws InterruptedException
+     */
     public RpcClient connect() throws InterruptedException {
-        NettySender nettySender = null;
-        nettySender = new NettySender("localhost", port, new KryoDataSerialization(10 * 1024));
+        NettySender nettySender = new NettySender(this.host, this.port, new KryoDataSerialization(10 * 1024));
         this.rpcClientFactory = new RpcClientFactory(nettySender, rpcInterfaceList);
         return this;
     }
 
+    /**
+     * 根据给定的Rpc接口类找到由Rpc代理的对象，找不到时返回null。
+     * 需要执行 connect 方法成功后才可调用。
+     *
+     * @param clazz Rpc的接口。
+     * @return 由Rpc代理的对象。
+     */
     public <T> T getRpcImpl(Class<T> clazz) {
         return rpcClientFactory.get(clazz);
     }
 
+    /**
+     * 根据给定的class路径和注解类，扫描相应被注解的类。
+     */
     private Set<Class<?>> findRpcClasses(String classesPath, Class<? extends Annotation> annotation) {
         Reflections reflections = new Reflections(classesPath);
         Set<Class<?>> classSet = reflections.getTypesAnnotatedWith(annotation, true);
