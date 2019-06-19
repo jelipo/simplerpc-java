@@ -59,7 +59,7 @@ public class ProxyInterfaceImpl implements ProxyInterface {
 ###### Main.java 主要的测试类。
 ```java
 public class Main {
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws Exception {
         //设置端口
         int port = 18080;
         //启动RPC服务器
