@@ -12,6 +12,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.LengthFieldPrepender;
+import io.netty.handler.timeout.IdleStateHandler;
 
 import java.net.InetSocketAddress;
 
@@ -43,8 +44,10 @@ public class NettyServer extends AbstractServer {
                     protected void initChannel(SocketChannel ch) throws Exception {
                         LengthFieldBasedFrameDecoder decoder = new LengthFieldBasedFrameDecoder(10 * 1024, 0, 4, 0, 4);
                         LengthFieldPrepender prepender = new LengthFieldPrepender(4);
-                        ch.pipeline().addLast(decoder);
-                        ch.pipeline().addLast(prepender);
+                        ch.pipeline().addLast(decoder, prepender);
+                        IdleStateHandler idleStateHandler = new IdleStateHandler(5, 0, 0);
+                        ch.pipeline().addLast(idleStateHandler);
+                        ch.pipeline().addLast(new NettyHeartBeatHandler(idleStateHandler, 3));
                         ch.pipeline().addLast(serverHandler);
                     }
                 });

@@ -10,8 +10,12 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.handler.timeout.IdleState;
+import io.netty.handler.timeout.IdleStateEvent;
 
 import java.util.concurrent.CompletableFuture;
+
+import static io.netty.handler.codec.stomp.StompHeaders.HEART_BEAT;
 
 /**
  * 专门处理Netty接收到的信息的Handler。
@@ -28,6 +32,23 @@ class NettySenderHandler extends SimpleChannelInboundHandler<ByteBuf> {
     NettySenderHandler(DataSerialization dataSerialization, Cache<Integer, CompletableFuture<Object>> cache) {
         this.dataSerialization = dataSerialization;
         this.cache = cache;
+    }
+
+    /**
+     * 在此handler中，此方法主要用于处理发送心跳。
+     *
+     * @throws Exception
+     */
+    @Override
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+        if (evt instanceof IdleStateEvent) {
+            IdleState state = ((IdleStateEvent) evt).state();
+            if (state == IdleState.WRITER_IDLE) {
+                ctx.writeAndFlush(HEART_BEAT);
+            }
+        } else {
+            super.userEventTriggered(ctx, evt);
+        }
     }
 
     @Override

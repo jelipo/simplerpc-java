@@ -31,5 +31,10 @@ public interface SenderInterface {
      */
     CompletableFuture<Object> asyncSend(RpcRequest rpcRequest) throws Exception;
 
+    /**
+     * 关闭连接
+     */
+    void close();
+
 
 }

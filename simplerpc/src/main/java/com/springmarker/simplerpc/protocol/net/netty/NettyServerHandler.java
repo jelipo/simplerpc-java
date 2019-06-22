@@ -9,6 +9,8 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.handler.timeout.IdleState;
+import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.ReferenceCountUtil;
 
 import java.util.concurrent.CompletableFuture;
@@ -31,12 +33,15 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
         this.dataSerialization = dataSerialization;
     }
 
+
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        System.out.println(ctx.hashCode());
         try {
-
-            ByteBuf in = (ByteBuf) msg;
-
+            if (!(msg instanceof ByteBuf)) {
+                return;
+            }
+            ByteBuf in = ((ByteBuf) msg);
             byte[] bytes = new byte[in.readableBytes()];
             in.readBytes(bytes);
             ExchangeRequest exchangeRequest = dataSerialization.deserializeRequest(bytes);
@@ -45,7 +50,6 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
             //判断是否是异步请求
             if (rpcRequest.getAsync() == 0) {
                 RpcResponse rpcResponse = proxyServerCore.handleMethod(rpcRequest);
-
                 returnResult(ctx, new ExchangeResponse(nettyId, rpcResponse));
             } else {
                 CompletableFuture<RpcResponse> future = new CompletableFuture<>();

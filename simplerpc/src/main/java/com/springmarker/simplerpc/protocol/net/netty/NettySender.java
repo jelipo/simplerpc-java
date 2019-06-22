@@ -15,6 +15,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.LengthFieldPrepender;
+import io.netty.handler.timeout.IdleStateHandler;
 
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
@@ -99,8 +100,8 @@ public class NettySender implements SenderInterface {
                         int lengthFieldLength = 4;
                         LengthFieldBasedFrameDecoder decoder = new LengthFieldBasedFrameDecoder(nettyMaxFrameLength, 0, lengthFieldLength, 0, lengthFieldLength);
                         LengthFieldPrepender prepender = new LengthFieldPrepender(lengthFieldLength);
-                        ch.pipeline().addLast(decoder);
-                        ch.pipeline().addLast(prepender);
+                        ch.pipeline().addLast(decoder, prepender);
+                        ch.pipeline().addLast(new IdleStateHandler(0, 3, 0));
                         ch.pipeline().addLast(new NettySenderHandler(dataSerialization, cache));
                     }
                 });
@@ -146,6 +147,11 @@ public class NettySender implements SenderInterface {
             return 1;
         }
         return atomicInteger.addAndGet(1);
+    }
+
+    @Override
+    public void close() {
+        channel.close();
     }
 
 }

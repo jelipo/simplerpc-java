@@ -2,6 +2,7 @@ package com.springmarker.simplerpc;
 
 import com.springmarker.simplerpc.annotations.Rpc;
 import com.springmarker.simplerpc.core.client.RpcClientFactory;
+import com.springmarker.simplerpc.core.client.SenderInterface;
 import com.springmarker.simplerpc.protocol.net.netty.NettySender;
 import com.springmarker.simplerpc.protocol.serialization.kryo.KryoDataSerialization;
 import org.reflections.Reflections;
@@ -27,6 +28,8 @@ public class RpcClient {
 
     private RpcClientFactory rpcClientFactory;
 
+    private SenderInterface sender;
+
     public RpcClient hostAndPort(String host, int port) {
         this.host = host;
         this.port = port;
@@ -48,8 +51,9 @@ public class RpcClient {
      * @throws InterruptedException
      */
     public RpcClient connect() throws InterruptedException {
-        NettySender nettySender = new NettySender(this.host, this.port, new KryoDataSerialization(10 * 1024));
-        this.rpcClientFactory = new RpcClientFactory(nettySender, rpcInterfaceList);
+        SenderInterface sender = new NettySender(this.host, this.port, new KryoDataSerialization(10 * 1024));
+        this.rpcClientFactory = new RpcClientFactory(sender, rpcInterfaceList);
+        this.sender = sender;
         return this;
     }
 
@@ -62,6 +66,13 @@ public class RpcClient {
      */
     public <T> T getRpcImpl(Class<T> clazz) {
         return rpcClientFactory.get(clazz);
+    }
+
+    /**
+     * 关闭连接
+     */
+    public void close() {
+        sender.close();
     }
 
     /**
