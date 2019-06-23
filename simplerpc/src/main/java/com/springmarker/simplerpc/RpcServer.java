@@ -6,7 +6,7 @@ import com.springmarker.simplerpc.core.server.ProxyServerCore;
 import com.springmarker.simplerpc.core.server.Receiver;
 import com.springmarker.simplerpc.core.server.RpcServerFactory;
 import com.springmarker.simplerpc.pojo.ServerConfig;
-import com.springmarker.simplerpc.protocol.net.netty.NettyServer;
+import com.springmarker.simplerpc.protocol.net.netty.server.NettyServer;
 import com.springmarker.simplerpc.protocol.serialization.kryo.KryoDataSerialization;
 import org.reflections.Reflections;
 

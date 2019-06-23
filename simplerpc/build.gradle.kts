@@ -19,7 +19,7 @@ val lombokVersion = "1.18.8"
 dependencies {
     implementation("ch.qos.logback:logback-classic:1.2.3")
 
-    compile("com.github.ben-manes.caffeine:caffeine:2.7.0")
+    implementation("com.google.guava:guava:28.0-jre")
     implementation("cglib:cglib:3.2.12")
 
     compileOnly("org.projectlombok:lombok:$lombokVersion")

@@ -1,7 +1,7 @@
-package com.springmarker.simplerpc.protocol.net.netty;
+package com.springmarker.simplerpc.protocol.net.netty.client;
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.springmarker.simplerpc.core.client.SenderInterface;
 import com.springmarker.simplerpc.pojo.ExchangeRequest;
 import com.springmarker.simplerpc.pojo.RpcRequest;
@@ -42,7 +42,7 @@ public class NettySender implements SenderInterface {
     private Channel channel;
 
     /**
-     * 序列化处理器。
+     * 序列化/反序列化处理器。
      */
     private DataSerialization dataSerialization;
 
@@ -59,7 +59,7 @@ public class NettySender implements SenderInterface {
     /**
      * 用于存放 释放锁对象 的缓存。
      */
-    private Cache<Integer, CompletableFuture<Object>> cache = Caffeine.newBuilder()
+    private Cache<Integer, CompletableFuture<Object>> cache = CacheBuilder.newBuilder()
             .maximumSize(Integer.MAX_VALUE)
             .expireAfterWrite(cacheTime, TimeUnit.SECONDS)
             .build();
@@ -73,14 +73,17 @@ public class NettySender implements SenderInterface {
      * @throws InterruptedException 启动netty时造成的异常。
      */
     public NettySender(String host, int port, DataSerialization dataSerialization) throws InterruptedException {
-        this.dataSerialization = dataSerialization;
-        this.channel = start(host, port);
+        defaultSender(host, port, dataSerialization);
     }
 
     public NettySender(String host, int port, DataSerialization dataSerialization, int nettyMaxFrameLength) throws InterruptedException {
-        this.dataSerialization = dataSerialization;
         this.nettyMaxFrameLength = nettyMaxFrameLength;
-        this.channel = start(host, port);
+        defaultSender(host, port, dataSerialization);
+    }
+
+    private void defaultSender(String host, int port, DataSerialization dataSerialization) throws InterruptedException {
+        this.dataSerialization = dataSerialization;
+        start(host, port, dataSerialization);
     }
 
     /**
@@ -88,7 +91,7 @@ public class NettySender implements SenderInterface {
      * @param port
      * @return
      */
-    private Channel start(String host, int port) throws InterruptedException {
+    private void start(String host, int port, DataSerialization dataSerialization) throws InterruptedException {
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         Bootstrap bootstrap = new Bootstrap();
         bootstrap.group(workerGroup)
@@ -101,12 +104,20 @@ public class NettySender implements SenderInterface {
                         LengthFieldBasedFrameDecoder decoder = new LengthFieldBasedFrameDecoder(nettyMaxFrameLength, 0, lengthFieldLength, 0, lengthFieldLength);
                         LengthFieldPrepender prepender = new LengthFieldPrepender(lengthFieldLength);
                         ch.pipeline().addLast(decoder, prepender);
-                        ch.pipeline().addLast(new IdleStateHandler(0, 3, 0));
+                        ch.pipeline().addLast(new IdleStateHandler(0, 5, 0));
                         ch.pipeline().addLast(new NettySenderHandler(dataSerialization, cache));
                     }
                 });
+        ChannelFuture channelFuture = bootstrap.connect(host, port);
+        channelFuture.addListener((ChannelFutureListener) future -> {
+            if (!future.isSuccess()) {
+                System.out.println("失败，尝试重连");
+                Thread.sleep(2000);
+                defaultSender(host, port, dataSerialization);
+            }
+        });
         // 同步等待启动客户端完成。
-        return bootstrap.connect(host, port).sync().channel();
+        this.channel = channelFuture.channel();
     }
 
     @Override
@@ -122,7 +133,7 @@ public class NettySender implements SenderInterface {
         ByteBuf byteBuf = Unpooled.copiedBuffer(bytes);
         CompletableFuture<Object> future = new CompletableFuture<>();
         cache.put(exchangeRequest.getId(), future);
-        ChannelFuture channelFuture = channel.writeAndFlush(byteBuf).sync();
+        ChannelFuture channelFuture = channel.writeAndFlush(byteBuf);
         return future;
     }
 

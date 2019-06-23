@@ -1,12 +1,13 @@
-package com.springmarker.simplerpc.protocol.net.netty;
+package com.springmarker.simplerpc.protocol.net.netty.client;
 
-import com.github.benmanes.caffeine.cache.Cache;
+import com.google.common.cache.Cache;
 import com.springmarker.simplerpc.exception.RemoteCallException;
 import com.springmarker.simplerpc.pojo.ExceptionType;
 import com.springmarker.simplerpc.pojo.ExchangeResponse;
 import com.springmarker.simplerpc.pojo.RpcResponse;
 import com.springmarker.simplerpc.protocol.serialization.DataSerialization;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -14,8 +15,6 @@ import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 
 import java.util.concurrent.CompletableFuture;
-
-import static io.netty.handler.codec.stomp.StompHeaders.HEART_BEAT;
 
 /**
  * 专门处理Netty接收到的信息的Handler。
@@ -34,6 +33,9 @@ class NettySenderHandler extends SimpleChannelInboundHandler<ByteBuf> {
         this.cache = cache;
     }
 
+
+    private static final ByteBuf HEART_BEAT_BYTE_BUF = Unpooled.copiedBuffer("HEART".getBytes());
+
     /**
      * 在此handler中，此方法主要用于处理发送心跳。
      *
@@ -44,7 +46,7 @@ class NettySenderHandler extends SimpleChannelInboundHandler<ByteBuf> {
         if (evt instanceof IdleStateEvent) {
             IdleState state = ((IdleStateEvent) evt).state();
             if (state == IdleState.WRITER_IDLE) {
-                ctx.writeAndFlush(HEART_BEAT);
+                ctx.writeAndFlush(HEART_BEAT_BYTE_BUF.copy());
             }
         } else {
             super.userEventTriggered(ctx, evt);
@@ -101,7 +103,13 @@ class NettySenderHandler extends SimpleChannelInboundHandler<ByteBuf> {
     }
 
     @Override
+    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
+        super.channelReadComplete(ctx);
+    }
+
+    @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        cause.printStackTrace();
         super.exceptionCaught(ctx, cause);
     }
 

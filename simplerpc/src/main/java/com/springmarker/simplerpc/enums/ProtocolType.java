@@ -1,7 +1,7 @@
 package com.springmarker.simplerpc.enums;
 
 import com.springmarker.simplerpc.core.client.SenderInterface;
-import com.springmarker.simplerpc.protocol.net.netty.NettySender;
+import com.springmarker.simplerpc.protocol.net.netty.client.NettySender;
 
 /**
  * @author Springmarker

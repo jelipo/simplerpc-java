@@ -1,9 +1,8 @@
-package com.springmarker.simplerpc.protocol.net.netty;
+package com.springmarker.simplerpc.protocol.net.netty.server;
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.handler.timeout.IdleStateHandler;
@@ -20,7 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author Springmarker
  * @date 2019/6/22 20:05
  */
-public class NettyHeartBeatHandler extends ChannelInboundHandlerAdapter {
+public class NettyHeartBeatWorker implements NettyWorker {
 
     private Cache<ChannelHandlerContext, AtomicInteger> cache;
 
@@ -29,10 +28,10 @@ public class NettyHeartBeatHandler extends ChannelInboundHandlerAdapter {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
-    NettyHeartBeatHandler(IdleStateHandler idleStateHandler, int retryMaxTimes) {
+    NettyHeartBeatWorker(IdleStateHandler idleStateHandler, int retryMaxTimes) {
         long readerIdleTimeInMillis = idleStateHandler.getReaderIdleTimeInMillis();
         this.retryMaxTimes = retryMaxTimes;
-        this.cache = Caffeine.newBuilder()
+        this.cache = CacheBuilder.newBuilder()
                 .maximumSize(Integer.MAX_VALUE)
                 .expireAfterWrite(readerIdleTimeInMillis * (retryMaxTimes + 2), TimeUnit.MILLISECONDS)
                 .build();
@@ -40,15 +39,12 @@ public class NettyHeartBeatHandler extends ChannelInboundHandlerAdapter {
 
     /**
      * 在此handler中，此方法主要用于出现 心跳包未定期发送过来 的处理方法。
-     *
-     * @throws Exception
      */
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         logger.debug("Heart beat acquisition Timeout.");
         //如果不是IdleStateEvent类直接跳过
         if (!(evt instanceof IdleStateEvent)) {
-            super.userEventTriggered(ctx, evt);
             return;
         }
         IdleStateEvent event = (IdleStateEvent) evt;
@@ -63,7 +59,6 @@ public class NettyHeartBeatHandler extends ChannelInboundHandlerAdapter {
         }
         //已经自增过的重试次数
         int retryTimes = retryTimesAtomic.addAndGet(1);
-
         //遇到超过次数了，直接删除缓存和关闭channel连接。
         if (retryTimes >= retryMaxTimes) {
             //如果次数超过了，直接关闭。
@@ -75,12 +70,32 @@ public class NettyHeartBeatHandler extends ChannelInboundHandlerAdapter {
     }
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+    public boolean handle(ChannelHandlerContext ctx, byte[] bytes) throws Exception {
         AtomicInteger retryTimesAtomic = cache.getIfPresent(ctx);
         if (retryTimesAtomic != null) {
             retryTimesAtomic.set(0);
         }
-        logger.debug("Get the latest information ,clearing up 'retryTimes'.");
-        super.channelRead(ctx, msg);
+        if (isHeartBeatPackage(bytes)) {
+            logger.trace("Get the latest information ,clearing up 'retryTimes'.");
+            return true;
+        }
+        return false;
+    }
+
+    private static final byte[] HEART_BEAT_BYTES = "HEART".getBytes();
+
+    private boolean isHeartBeatPackage(byte[] bytes) {
+        if (bytes.length != HEART_BEAT_BYTES.length) {
+            return false;
+        }
+        int n = HEART_BEAT_BYTES.length;
+        int i = 0;
+        while (n-- != 0) {
+            if (HEART_BEAT_BYTES[i] != bytes[i]) {
+                return false;
+            }
+            i++;
+        }
+        return true;
     }
 }

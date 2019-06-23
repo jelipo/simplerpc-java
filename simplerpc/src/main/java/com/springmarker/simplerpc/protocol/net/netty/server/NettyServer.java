@@ -1,5 +1,6 @@
-package com.springmarker.simplerpc.protocol.net.netty;
+package com.springmarker.simplerpc.protocol.net.netty.server;
 
+import com.google.common.collect.Lists;
 import com.springmarker.simplerpc.core.server.AbstractServer;
 import com.springmarker.simplerpc.core.server.ProxyServerCore;
 import com.springmarker.simplerpc.pojo.ServerConfig;
@@ -15,6 +16,7 @@ import io.netty.handler.codec.LengthFieldPrepender;
 import io.netty.handler.timeout.IdleStateHandler;
 
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 
 /**
  * Netty的Server启动类。
@@ -24,17 +26,23 @@ import java.net.InetSocketAddress;
  */
 public class NettyServer extends AbstractServer {
 
-    private NettyServerHandler serverHandler;
+    private int retryTimes = 5;
+
+    private int heartBeatWaitTimeSeconds = 5;
+
+    /**
+     * Netty单次发送/接收 最大的字节数。
+     */
+    private int nettyMaxFrameLength = 1024 * 1024;
 
     public NettyServer(ServerConfig config, ProxyServerCore proxyServerCore, DataSerialization dataSerialization) {
         super(config, proxyServerCore, dataSerialization);
-        serverHandler = new NettyServerHandler(proxyServerCore, dataSerialization);
+
     }
 
     @Override
     public void start() throws Exception {
         NioEventLoopGroup group = new NioEventLoopGroup();
-
         ServerBootstrap serverBootstrap = new ServerBootstrap();
         serverBootstrap.group(group)
                 .channel(NioServerSocketChannel.class)
@@ -42,17 +50,27 @@ public class NettyServer extends AbstractServer {
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
-                        LengthFieldBasedFrameDecoder decoder = new LengthFieldBasedFrameDecoder(10 * 1024, 0, 4, 0, 4);
-                        LengthFieldPrepender prepender = new LengthFieldPrepender(4);
-                        ch.pipeline().addLast(decoder, prepender);
-                        IdleStateHandler idleStateHandler = new IdleStateHandler(5, 0, 0);
-                        ch.pipeline().addLast(idleStateHandler);
-                        ch.pipeline().addLast(new NettyHeartBeatHandler(idleStateHandler, 3));
-                        ch.pipeline().addLast(serverHandler);
+                        nettyChannelInit(ch);
                     }
                 });
         ChannelFuture channelFuture = serverBootstrap.bind().sync();
 
     }
+
+    private void nettyChannelInit(SocketChannel ch) throws Exception {
+        LengthFieldBasedFrameDecoder decoder = new LengthFieldBasedFrameDecoder(nettyMaxFrameLength, 0, 4, 0, 4);
+        LengthFieldPrepender prepender = new LengthFieldPrepender(4);
+        ch.pipeline().addLast(decoder, prepender);
+        IdleStateHandler idleStateHandler = new IdleStateHandler(heartBeatWaitTimeSeconds, 0, 0);
+        ch.pipeline().addLast(idleStateHandler);
+        NettyRpcWorker nettyRpcWorker = new NettyRpcWorker(proxyServerCore, dataSerialization);
+        NettyHeartBeatWorker nettyHeartBeatWorker = new NettyHeartBeatWorker(idleStateHandler, retryTimes);
+
+        //确保先后顺序
+        ArrayList<NettyWorker> workerList = Lists.newArrayList(nettyHeartBeatWorker, nettyRpcWorker);
+
+        ch.pipeline().addLast(new NettyServerMainHandler(workerList, nettyRpcWorker));
+    }
+
 
 }

@@ -3,7 +3,7 @@ package com.springmarker.simplerpc;
 import com.springmarker.simplerpc.annotations.Rpc;
 import com.springmarker.simplerpc.core.client.RpcClientFactory;
 import com.springmarker.simplerpc.core.client.SenderInterface;
-import com.springmarker.simplerpc.protocol.net.netty.NettySender;
+import com.springmarker.simplerpc.protocol.net.netty.client.NettySender;
 import com.springmarker.simplerpc.protocol.serialization.kryo.KryoDataSerialization;
 import org.reflections.Reflections;
 
