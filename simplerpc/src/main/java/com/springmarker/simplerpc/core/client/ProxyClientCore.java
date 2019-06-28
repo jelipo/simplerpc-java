@@ -19,9 +19,9 @@ import java.util.concurrent.CompletableFuture;
  */
 public class ProxyClientCore implements MethodInterceptor {
 
-    private SenderInterface sender;
+    private RpcSender sender;
 
-    public ProxyClientCore(SenderInterface sender) {
+    public ProxyClientCore(RpcSender sender) {
         this.sender = sender;
     }
 

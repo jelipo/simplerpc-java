@@ -1,7 +1,7 @@
 package com.springmarker.simplerpc.protocol.net.netty.server;
 
 import com.google.common.collect.Lists;
-import com.springmarker.simplerpc.core.server.AbstractServer;
+import com.springmarker.simplerpc.core.server.AbstractRpcServer;
 import com.springmarker.simplerpc.core.server.ProxyServerCore;
 import com.springmarker.simplerpc.pojo.ServerConfig;
 import com.springmarker.simplerpc.protocol.serialization.DataSerialization;
@@ -24,7 +24,7 @@ import java.util.ArrayList;
  * @author: Springmarker
  * @date: 2019/6/11 2:52
  */
-public class NettyServer extends AbstractServer {
+public class NettyRpcServer extends AbstractRpcServer {
 
     private int retryTimes = 5;
 
@@ -35,7 +35,7 @@ public class NettyServer extends AbstractServer {
      */
     private int nettyMaxFrameLength = 1024 * 1024;
 
-    public NettyServer(ServerConfig config, ProxyServerCore proxyServerCore, DataSerialization dataSerialization) {
+    public NettyRpcServer(ServerConfig config, ProxyServerCore proxyServerCore, DataSerialization dataSerialization) {
         super(config, proxyServerCore, dataSerialization);
 
     }

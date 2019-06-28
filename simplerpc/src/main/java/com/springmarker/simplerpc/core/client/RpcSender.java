@@ -10,7 +10,7 @@ import java.util.concurrent.CompletableFuture;
  * @author Springmarker
  * @date 2018/10/16 22:29
  */
-public interface SenderInterface {
+public interface RpcSender {
 
     /**
      * 实现具体发送,并同步返回结果。

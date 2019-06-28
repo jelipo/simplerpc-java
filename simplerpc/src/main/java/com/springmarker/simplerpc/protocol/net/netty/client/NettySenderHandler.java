@@ -32,11 +32,10 @@ class NettySenderHandler extends ChannelInboundHandlerAdapter {
     private DataSerialization dataSerialization;
     private Cache<Integer, CompletableFuture<Object>> cache;
 
-    NettySenderHandler(DataSerialization dataSerialization, Cache<Integer, CompletableFuture<Object>> cache) {
-        this.dataSerialization = dataSerialization;
-        this.cache = cache;
+    NettySenderHandler(NettyClientContext clientContext) {
+        this.dataSerialization = clientContext.getDataSerialization();
+        this.cache = clientContext.getCache();
     }
-
 
     private ByteBuf heartBeatByteBuf;
 

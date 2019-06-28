@@ -2,8 +2,11 @@ package com.springmarker.simplerpc;
 
 import com.springmarker.simplerpc.annotations.Rpc;
 import com.springmarker.simplerpc.core.client.RpcClientFactory;
-import com.springmarker.simplerpc.core.client.SenderInterface;
-import com.springmarker.simplerpc.protocol.net.netty.client.NettySender;
+import com.springmarker.simplerpc.core.client.RpcClientInterface;
+import com.springmarker.simplerpc.core.client.RpcSender;
+import com.springmarker.simplerpc.protocol.net.netty.client.NettyClient;
+import com.springmarker.simplerpc.protocol.net.netty.client.NettyClientConfig;
+import com.springmarker.simplerpc.protocol.serialization.DataSerialization;
 import com.springmarker.simplerpc.protocol.serialization.kryo.KryoDataSerialization;
 import org.reflections.Reflections;
 
@@ -28,7 +31,7 @@ public class RpcClient {
 
     private RpcClientFactory rpcClientFactory;
 
-    private SenderInterface sender;
+    private RpcSender sender;
 
     public RpcClient hostAndPort(String host, int port) {
         this.host = host;
@@ -47,11 +50,12 @@ public class RpcClient {
     /**
      * 连接Rpc Server，同步操作，会等待完成连接完成。
      *
-     * @return
-     * @throws InterruptedException
+     * @throws Exception
      */
-    public RpcClient connect() throws InterruptedException {
-        SenderInterface sender = new NettySender(this.host, this.port, new KryoDataSerialization(10 * 1024));
+    public RpcClient connect() throws Exception {
+        DataSerialization dataSerialization = creatDataSerialization();
+        RpcClientInterface rpcClient = creatRpcClient(dataSerialization);
+        RpcSender sender = rpcClient.getNettySender();
         this.rpcClientFactory = new RpcClientFactory(sender, rpcInterfaceList);
         this.sender = sender;
         return this;
@@ -85,5 +89,19 @@ public class RpcClient {
                 //过滤掉内部类、匿名类、本地类
                 .filter(aClass -> (!(aClass.isAnonymousClass() || aClass.isMemberClass() || aClass.isLocalClass())))
                 .collect(Collectors.toSet());
+    }
+
+    private DataSerialization creatDataSerialization() {
+        return new KryoDataSerialization(10 * 1024);
+    }
+
+    private RpcClientInterface creatRpcClient(DataSerialization dataSerialization) throws Exception {
+        NettyClientConfig config = new NettyClientConfig();
+        config.setHost(host);
+        config.setPort(port);
+        config.setLengthFieldLength(4);
+        config.setNettyMaxFrameLength(1024 * 1024);
+        config.setRetryTimes(5);
+        return new NettyClient(config, dataSerialization);
     }
 }

@@ -6,7 +6,7 @@ import com.springmarker.simplerpc.core.server.ProxyServerCore;
 import com.springmarker.simplerpc.core.server.Receiver;
 import com.springmarker.simplerpc.core.server.RpcServerFactory;
 import com.springmarker.simplerpc.pojo.ServerConfig;
-import com.springmarker.simplerpc.protocol.net.netty.server.NettyServer;
+import com.springmarker.simplerpc.protocol.net.netty.server.NettyRpcServer;
 import com.springmarker.simplerpc.protocol.serialization.kryo.KryoDataSerialization;
 import org.reflections.Reflections;
 
@@ -52,7 +52,7 @@ public class RpcServer {
         ProxyServerCore proxyServerCore = new ProxyServerCore(new Receiver(rpcServerFactory));
         ServerConfig serverConfig = new ServerConfig();
         serverConfig.setPort(port);
-        NettyServer httpServerHandler = new NettyServer(serverConfig, proxyServerCore, new KryoDataSerialization(10 * 1024));
+        NettyRpcServer httpServerHandler = new NettyRpcServer(serverConfig, proxyServerCore, new KryoDataSerialization(10 * 1024));
         httpServerHandler.start();
         return this;
     }

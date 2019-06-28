@@ -1,23 +1,19 @@
 package com.springmarker.simplerpc.protocol.net.netty.client;
 
 import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.springmarker.simplerpc.core.client.SenderInterface;
+import com.springmarker.simplerpc.core.client.RpcSender;
+import com.springmarker.simplerpc.core.client.RpcSender;
 import com.springmarker.simplerpc.exception.RemoteCallException;
 import com.springmarker.simplerpc.pojo.ExchangeRequest;
 import com.springmarker.simplerpc.pojo.RpcRequest;
 import com.springmarker.simplerpc.protocol.serialization.DataSerialization;
-import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.*;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
-import io.netty.handler.codec.LengthFieldPrepender;
-import io.netty.handler.timeout.IdleStateHandler;
-import io.netty.util.ReferenceCountUtil;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
@@ -32,7 +28,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author: Springmarker
  * @date: 2019/6/11 2:51
  */
-public class NettySender implements SenderInterface {
+public class NettySender implements RpcSender {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /**
      * 每个NettySender实体都有一个随机生成的id，作为CLientId使用。
@@ -44,89 +42,21 @@ public class NettySender implements SenderInterface {
      */
     private Channel channel;
 
-    /**
-     * 序列化/反序列化处理器。
-     */
+    private Cache<Integer, CompletableFuture<Object>> cache;
+
     private DataSerialization dataSerialization;
 
-    /**
-     * 缓存的时间，单位 秒。
-     */
-    private int cacheTime = 300;
-
-    /**
-     * Netty单次发送/接收 最大的字节数。
-     */
-    private int nettyMaxFrameLength = 1024 * 1024;
+    public NettySender(NettyClientContext clientContext, Channel channel) {
+        this.channel = channel;
+        this.cache = clientContext.getCache();
+        this.dataSerialization = clientContext.getDataSerialization();
+    }
 
     /**
      * 用于控制速率使用。
      */
     private final Semaphore permit = new Semaphore(Runtime.getRuntime().availableProcessors() * 2);
 
-    /**
-     * 用于存放 释放锁对象 的缓存。
-     */
-    private Cache<Integer, CompletableFuture<Object>> cache = CacheBuilder.newBuilder()
-            .maximumSize(Integer.MAX_VALUE)
-            .expireAfterWrite(cacheTime, TimeUnit.SECONDS)
-            .build();
-
-    /**
-     * 此构造方法会直接创建一个与Netty Server 的连接。
-     *
-     * @param host              需要Netty连接的Host地址。
-     * @param port              需要Netty连接的端口。
-     * @param dataSerialization 序列化处理器。
-     * @throws InterruptedException 启动netty时造成的异常。
-     */
-    public NettySender(String host, int port, DataSerialization dataSerialization) throws InterruptedException {
-        defaultSender(host, port, dataSerialization);
-    }
-
-    public NettySender(String host, int port, DataSerialization dataSerialization, int nettyMaxFrameLength) throws InterruptedException {
-        this.nettyMaxFrameLength = nettyMaxFrameLength;
-        defaultSender(host, port, dataSerialization);
-    }
-
-    private void defaultSender(String host, int port, DataSerialization dataSerialization) throws InterruptedException {
-        this.dataSerialization = dataSerialization;
-        start(host, port, dataSerialization);
-    }
-
-    /**
-     * @param host
-     * @param port
-     * @return
-     */
-    private void start(String host, int port, DataSerialization dataSerialization) throws InterruptedException {
-        EventLoopGroup workerGroup = new NioEventLoopGroup();
-        Bootstrap bootstrap = new Bootstrap();
-        bootstrap.group(workerGroup)
-                .channel(NioSocketChannel.class)
-                .option(ChannelOption.SO_KEEPALIVE, true)
-                .handler(new ChannelInitializer<SocketChannel>() {
-                    @Override
-                    public void initChannel(SocketChannel ch) throws Exception {
-                        int lengthFieldLength = 4;
-                        LengthFieldBasedFrameDecoder decoder = new LengthFieldBasedFrameDecoder(nettyMaxFrameLength, 0, lengthFieldLength, 0, lengthFieldLength);
-                        LengthFieldPrepender prepender = new LengthFieldPrepender(lengthFieldLength);
-                        ch.pipeline().addLast(decoder, prepender);
-                        ch.pipeline().addLast(new IdleStateHandler(0, 4, 0));
-                        ch.pipeline().addLast(new NettySenderHandler(dataSerialization, cache));
-                    }
-                });
-        ChannelFuture channelFuture = bootstrap.connect(host, port);
-        channelFuture.addListener((ChannelFutureListener) future -> {
-            if (!future.isSuccess()) {
-                System.out.println("失败，尝试重连");
-                Thread.sleep(2000);
-                defaultSender(host, port, dataSerialization);
-            }
-        });
-        // 同步等待启动客户端完成。
-        this.channel = channelFuture.channel();
-    }
 
     @Override
     public Object syncSend(RpcRequest rpcRequest) throws Exception {

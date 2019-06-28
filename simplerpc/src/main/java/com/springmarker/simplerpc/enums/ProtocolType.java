@@ -1,6 +1,6 @@
 package com.springmarker.simplerpc.enums;
 
-import com.springmarker.simplerpc.core.client.SenderInterface;
+import com.springmarker.simplerpc.core.client.RpcSender;
 import com.springmarker.simplerpc.protocol.net.netty.client.NettySender;
 
 /**
@@ -14,6 +14,6 @@ public enum ProtocolType {
      */
     NETTY(NettySender.class);
 
-    ProtocolType(Class<? extends SenderInterface> senderImplClassPath) {
+    ProtocolType(Class<? extends RpcSender> senderImplClassPath) {
     }
 }
