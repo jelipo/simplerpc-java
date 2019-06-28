@@ -1,5 +1,6 @@
 package com.springmarker.simplerpc.protocol.net.netty.server;
 
+import com.springmarker.simplerpc.pojo.ExchangeRequest;
 import io.netty.channel.ChannelHandlerContext;
 
 /**
@@ -19,11 +20,12 @@ public interface NettyWorker {
     /**
      * 业务逻辑的主要处理方法。
      *
-     * @param ctx   Netty的ChannelHandlerContext
-     * @param bytes 已经解析好的byte数组，可以直接拿来用。
+     * @param ctx             Netty的ChannelHandlerContext
+     * @param exchangeRequest 用于rpc client发送给server 交互的Request。
      * @return 是否是此handle所需要的，如果true，说明不需要向后执行worker。
+     * @throws Exception 处理期间产生的异常全部捕获。
      */
-    boolean handle(ChannelHandlerContext ctx, byte[] bytes) throws Exception;
+    boolean handle(ChannelHandlerContext ctx, ExchangeRequest exchangeRequest) throws Exception;
 
 
 }

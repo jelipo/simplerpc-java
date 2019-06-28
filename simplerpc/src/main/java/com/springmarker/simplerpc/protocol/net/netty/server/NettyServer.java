@@ -69,7 +69,7 @@ public class NettyServer extends AbstractServer {
         //确保先后顺序
         ArrayList<NettyWorker> workerList = Lists.newArrayList(nettyHeartBeatWorker, nettyRpcWorker);
 
-        ch.pipeline().addLast(new NettyServerMainHandler(workerList, nettyRpcWorker));
+        ch.pipeline().addLast(new NettyServerMainHandler(workerList, nettyRpcWorker, dataSerialization));
     }
 
 

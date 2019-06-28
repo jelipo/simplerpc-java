@@ -31,13 +31,7 @@ public class NettyRpcWorker implements NettyWorker, NettyExceptionWorker {
     }
 
     @Override
-    public boolean handle(ChannelHandlerContext ctx, byte[] bytes) throws Exception {
-        ExchangeRequest exchangeRequest = null;
-        try {
-            exchangeRequest = dataSerialization.deserializeRequest(bytes);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public boolean handle(ChannelHandlerContext ctx, ExchangeRequest exchangeRequest) throws Exception {
         RpcRequest rpcRequest = exchangeRequest.getRpcRequest();
         int nettyId = exchangeRequest.getId();
         if (rpcRequest == null) {

@@ -3,6 +3,7 @@ package com.springmarker.simplerpc.protocol.net.netty.client;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.springmarker.simplerpc.core.client.SenderInterface;
+import com.springmarker.simplerpc.exception.RemoteCallException;
 import com.springmarker.simplerpc.pojo.ExchangeRequest;
 import com.springmarker.simplerpc.pojo.RpcRequest;
 import com.springmarker.simplerpc.protocol.serialization.DataSerialization;
@@ -16,9 +17,11 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.LengthFieldPrepender;
 import io.netty.handler.timeout.IdleStateHandler;
+import io.netty.util.ReferenceCountUtil;
 
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -55,6 +58,11 @@ public class NettySender implements SenderInterface {
      * Netty单次发送/接收 最大的字节数。
      */
     private int nettyMaxFrameLength = 1024 * 1024;
+
+    /**
+     * 用于控制速率使用。
+     */
+    private final Semaphore permit = new Semaphore(Runtime.getRuntime().availableProcessors() * 2);
 
     /**
      * 用于存放 释放锁对象 的缓存。
@@ -104,7 +112,7 @@ public class NettySender implements SenderInterface {
                         LengthFieldBasedFrameDecoder decoder = new LengthFieldBasedFrameDecoder(nettyMaxFrameLength, 0, lengthFieldLength, 0, lengthFieldLength);
                         LengthFieldPrepender prepender = new LengthFieldPrepender(lengthFieldLength);
                         ch.pipeline().addLast(decoder, prepender);
-                        ch.pipeline().addLast(new IdleStateHandler(0, 5, 0));
+                        ch.pipeline().addLast(new IdleStateHandler(0, 4, 0));
                         ch.pipeline().addLast(new NettySenderHandler(dataSerialization, cache));
                     }
                 });
@@ -123,7 +131,8 @@ public class NettySender implements SenderInterface {
     @Override
     public Object syncSend(RpcRequest rpcRequest) throws Exception {
         CompletableFuture<Object> future = asyncSend(rpcRequest);
-        return future.get(10, TimeUnit.SECONDS);
+        Object result = future.get(10, TimeUnit.SECONDS);
+        return result;
     }
 
     @Override
@@ -131,10 +140,21 @@ public class NettySender implements SenderInterface {
         ExchangeRequest exchangeRequest = buildExchangeRequest(rpcRequest);
         byte[] bytes = dataSerialization.serialize(exchangeRequest);
         ByteBuf byteBuf = Unpooled.copiedBuffer(bytes);
-        CompletableFuture<Object> future = new CompletableFuture<>();
-        cache.put(exchangeRequest.getId(), future);
-        ChannelFuture channelFuture = channel.writeAndFlush(byteBuf);
-        return future;
+
+        CompletableFuture<Object> completableFuture = new CompletableFuture<>();
+
+        ChannelFuture channelFuture = channel.write(byteBuf);
+        permit.acquire();
+        channelFuture.addListener((ChannelFutureListener) future -> {
+            permit.release();
+            if (future.isSuccess()) {
+                cache.put(exchangeRequest.getId(), completableFuture);
+            } else {
+                completableFuture.completeExceptionally(new RemoteCallException("Rpc failed to write messages."));
+            }
+        });
+        channel.flush();
+        return completableFuture;
     }
 
     /**
@@ -142,7 +162,7 @@ public class NettySender implements SenderInterface {
      * @return 专门为client和server之间网络通讯的包装对象。
      */
     private ExchangeRequest buildExchangeRequest(RpcRequest rpcRequest) {
-        return new ExchangeRequest(clientId, generateNettyNetId(), rpcRequest);
+        return new ExchangeRequest(1, clientId, generateNettyNetId(), rpcRequest);
     }
 
     private final AtomicInteger atomicInteger = new AtomicInteger(0);

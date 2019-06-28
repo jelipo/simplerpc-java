@@ -2,17 +2,21 @@ package com.springmarker.simplerpc.protocol.net.netty.client;
 
 import com.google.common.cache.Cache;
 import com.springmarker.simplerpc.exception.RemoteCallException;
+import com.springmarker.simplerpc.exception.SerializationException;
 import com.springmarker.simplerpc.pojo.ExceptionType;
+import com.springmarker.simplerpc.pojo.ExchangeRequest;
 import com.springmarker.simplerpc.pojo.ExchangeResponse;
 import com.springmarker.simplerpc.pojo.RpcResponse;
 import com.springmarker.simplerpc.protocol.serialization.DataSerialization;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
+import io.netty.util.ReferenceCountUtil;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -23,7 +27,7 @@ import java.util.concurrent.CompletableFuture;
  * @date 2019/6/15 12:50
  */
 @ChannelHandler.Sharable
-class NettySenderHandler extends SimpleChannelInboundHandler<ByteBuf> {
+class NettySenderHandler extends ChannelInboundHandlerAdapter {
 
     private DataSerialization dataSerialization;
     private Cache<Integer, CompletableFuture<Object>> cache;
@@ -34,7 +38,16 @@ class NettySenderHandler extends SimpleChannelInboundHandler<ByteBuf> {
     }
 
 
-    private static final ByteBuf HEART_BEAT_BYTE_BUF = Unpooled.copiedBuffer("HEART".getBytes());
+    private ByteBuf heartBeatByteBuf;
+
+    private ByteBuf getHeartBeatByteBuf() throws SerializationException {
+        if (heartBeatByteBuf == null) {
+            ExchangeRequest exchangeRequest = new ExchangeRequest(0, 0, 0, null);
+            ByteBuf heartBeatByteBuf = Unpooled.copiedBuffer(dataSerialization.serialize(exchangeRequest));
+            this.heartBeatByteBuf = heartBeatByteBuf.asReadOnly();
+        }
+        return heartBeatByteBuf;
+    }
 
     /**
      * 在此handler中，此方法主要用于处理发送心跳。
@@ -46,7 +59,8 @@ class NettySenderHandler extends SimpleChannelInboundHandler<ByteBuf> {
         if (evt instanceof IdleStateEvent) {
             IdleState state = ((IdleStateEvent) evt).state();
             if (state == IdleState.WRITER_IDLE) {
-                ctx.writeAndFlush(HEART_BEAT_BYTE_BUF.copy());
+                ByteBuf heartBeatByteBuf = getHeartBeatByteBuf();
+                ctx.writeAndFlush(heartBeatByteBuf.copy());
             }
         } else {
             super.userEventTriggered(ctx, evt);
@@ -54,10 +68,14 @@ class NettySenderHandler extends SimpleChannelInboundHandler<ByteBuf> {
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws Exception {
-        byte[] bytes = new byte[msg.readableBytes()];
-        msg.readBytes(bytes);
-        ExchangeResponse exchangeResponse = dataSerialization.deserializeResponse(bytes);
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        ExchangeResponse exchangeResponse;
+        try {
+            ByteBuf bytebuf = (ByteBuf) msg;
+            exchangeResponse = dataSerialization.deserializeResponse(new ByteBufInputStream(bytebuf));
+        } finally {
+            ReferenceCountUtil.release(msg);
+        }
         int id = exchangeResponse.getId();
         if (id < 0) {
             System.out.println("有异常。");
@@ -66,37 +84,31 @@ class NettySenderHandler extends SimpleChannelInboundHandler<ByteBuf> {
         CompletableFuture<Object> future = cache.getIfPresent(exchangeResponse.getId());
         cache.invalidate(exchangeResponse.getId());
         if (future == null) {
-            System.out.println("找不到id相对应的缓存，可能已经超时/缓存设置太小。");
+            System.out.println("找不到id相对应的缓存，可能已经超时/缓存设置太小。id:" + exchangeResponse.getId());
             return;
         }
 
         RpcResponse rpcResponse = exchangeResponse.getRpcResponse();
         int exceptionCode = rpcResponse.getException();
         switch (exceptionCode) {
-            case ExceptionType.NO_EXCEPTION: {
+            case ExceptionType.NO_EXCEPTION:
                 future.complete(rpcResponse.getResult());
                 return;
-            }
-            case ExceptionType.RPC_METHOD_EXCEPTION: {
+            case ExceptionType.RPC_METHOD_EXCEPTION:
                 future.completeExceptionally(new RemoteCallException("An exception occurred when calling a remote method."));
                 return;
-            }
-            case ExceptionType.RPC_INNER_EXCEPTION: {
+            case ExceptionType.RPC_INNER_EXCEPTION:
                 future.completeExceptionally(new RemoteCallException("Abnormality in RPC.Pelease check network / object size / supported serialized objects "));
                 return;
-            }
-            case ExceptionType.NO_SUCHMETHOD_EXCEPTION: {
+            case ExceptionType.NO_SUCHMETHOD_EXCEPTION:
                 future.completeExceptionally(new NoSuchMethodException("No such method in remote server."));
                 return;
-            }
-            case ExceptionType.SERIALIZED_EXCEPTION: {
+            case ExceptionType.SERIALIZED_EXCEPTION:
                 future.completeExceptionally(new RemoteCallException("Abnormality in RPC. Serialized exception."));
                 return;
-            }
-            case ExceptionType.NETWORK_TRANSMISSION_EXCEPTION: {
+            case ExceptionType.NETWORK_TRANSMISSION_EXCEPTION:
                 future.completeExceptionally(new RemoteCallException("Abnormality in RPC. Exception occurred during netty transmission."));
                 return;
-            }
             default:
                 future.completeExceptionally(new UnknownError("Unknow remote call exception code: " + rpcResponse.getException()));
         }

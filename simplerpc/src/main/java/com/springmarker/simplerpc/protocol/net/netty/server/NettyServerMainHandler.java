@@ -1,7 +1,10 @@
 package com.springmarker.simplerpc.protocol.net.netty.server;
 
 import com.springmarker.simplerpc.pojo.ExceptionType;
+import com.springmarker.simplerpc.pojo.ExchangeRequest;
+import com.springmarker.simplerpc.protocol.serialization.DataSerialization;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufInputStream;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -22,9 +25,14 @@ public class NettyServerMainHandler extends ChannelInboundHandlerAdapter {
     private final List<NettyWorker> workerList;
     private final NettyExceptionWorker exceptionWorker;
 
-    public NettyServerMainHandler(List<NettyWorker> workerList, NettyExceptionWorker exceptionWorker) {
+    private final DataSerialization dataSerialization;
+
+    public NettyServerMainHandler(List<NettyWorker> workerList,
+                                  NettyExceptionWorker exceptionWorker,
+                                  DataSerialization dataSerialization) {
         this.workerList = workerList;
         this.exceptionWorker = exceptionWorker;
+        this.dataSerialization = dataSerialization;
     }
 
     @Override
@@ -37,12 +45,10 @@ public class NettyServerMainHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         try {
-            byte[] bytes = toBytes(msg);
-            if (bytes == null) {
-                return;
-            }
+            ByteBufInputStream byteBufInputStream = new ByteBufInputStream((ByteBuf) msg);
+            ExchangeRequest exchangeRequest = dataSerialization.deserializeRequest(byteBufInputStream);
             for (NettyWorker nettyHandlerWorker : workerList) {
-                if (nettyHandlerWorker.handle(ctx, bytes)) {
+                if (nettyHandlerWorker.handle(ctx, exchangeRequest)) {
                     break;
                 }
             }
@@ -60,23 +66,6 @@ public class NettyServerMainHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         exceptionWorker.exception(ctx, ExceptionType.RPC_INNER_EXCEPTION);
-    }
-
-    /**
-     * 可将Netty的ByteBuf类型转换为byte数组并返回。
-     * 如果遇到类型为byte[]，直接返回。
-     * 如果无法转换，直接返回null。
-     */
-    private static byte[] toBytes(Object msg) {
-        byte[] bytes = null;
-        if (msg instanceof ByteBuf) {
-            ByteBuf in = (ByteBuf) msg;
-            bytes = new byte[in.readableBytes()];
-            in.readBytes(bytes);
-        } else if (msg instanceof byte[]) {
-            bytes = (byte[]) msg;
-        }
-        return bytes;
     }
 
 }

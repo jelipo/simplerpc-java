@@ -2,6 +2,7 @@ package com.springmarker.simplerpc.protocol.net.netty.server;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.springmarker.simplerpc.pojo.ExchangeRequest;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
@@ -62,20 +63,20 @@ public class NettyHeartBeatWorker implements NettyWorker {
         //遇到超过次数了，直接删除缓存和关闭channel连接。
         if (retryTimes >= retryMaxTimes) {
             //如果次数超过了，直接关闭。
+            logger.debug("Over the maximum number of retries,close the channel:" + ctx.toString());
             cache.invalidate(ctx);
             ctx.channel().close();
-            logger.debug("Over the maximum number of retries,close the channel:" + ctx.toString());
         }
 
     }
 
     @Override
-    public boolean handle(ChannelHandlerContext ctx, byte[] bytes) throws Exception {
+    public boolean handle(ChannelHandlerContext ctx, ExchangeRequest exchangeRequest) throws Exception {
         AtomicInteger retryTimesAtomic = cache.getIfPresent(ctx);
         if (retryTimesAtomic != null) {
             retryTimesAtomic.set(0);
         }
-        if (isHeartBeatPackage(bytes)) {
+        if (exchangeRequest.getStatus() == 0) {
             logger.trace("Get the latest information ,clearing up 'retryTimes'.");
             return true;
         }

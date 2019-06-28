@@ -12,6 +12,7 @@ import com.springmarker.simplerpc.pojo.RpcRequest;
 import com.springmarker.simplerpc.pojo.RpcResponse;
 import com.springmarker.simplerpc.protocol.serialization.DataSerialization;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -100,24 +101,27 @@ public class KryoDataSerialization implements DataSerialization {
         }
     }
 
+
     @Override
-    public ExchangeRequest deserializeRequest(byte[] bytes) throws DeserializationException {
-        return (ExchangeRequest) commonDeserialize(bytes, ExchangeRequest.class);
+    public ExchangeRequest deserializeRequest(InputStream inputStream) throws DeserializationException {
+        Input input = new Input(inputStream);
+        return (ExchangeRequest) commonDeserialize(input, ExchangeRequest.class);
     }
 
     @Override
-    public ExchangeResponse deserializeResponse(byte[] bytes) throws DeserializationException {
-        return (ExchangeResponse) commonDeserialize(bytes, ExchangeResponse.class);
+    public ExchangeResponse deserializeResponse(InputStream inputStream) throws DeserializationException {
+        Input input = new Input(inputStream);
+        return (ExchangeResponse) commonDeserialize(input, ExchangeResponse.class);
     }
+
 
     /**
      * 内部通用的反序列化方法。
      *
-     * @param bytes 需要反序列化的byte。
+     * @param input 需要反序列化的input。
      */
-    private Object commonDeserialize(byte[] bytes, Class clazz) throws DeserializationException {
+    private Object commonDeserialize(Input input, Class clazz) throws DeserializationException {
         Kryo kryo = kryoPool.obtain();
-        Input input = new Input(bytes);
         try {
             return kryo.readObject(input, clazz);
         } catch (Exception e) {
