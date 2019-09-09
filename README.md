@@ -5,7 +5,7 @@
 ## Build
 本程序在 JDK8(Oracle JDK 8 build 1.8.0_211-b12) 平台编写和测试，使用Gradle Wrapper构建。
 ```bash
-./gradlew clean -Pmodule=simplerpc jar -Pmodule=simplerpc
+./gradlew simplerpc:clean simplerpc:jar
 ````
 ## How to use 
 ###### 演示文件
