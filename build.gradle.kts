@@ -6,19 +6,17 @@ plugins {
     idea
 }
 
-group = "com.springmarker"
+group = "com.Jelipo"
 
 tasks {
     compileJava { options.encoding = "UTF-8" }
     javadoc { options.encoding = "UTF-8" }
 }
 
-idea {
-    project {
-        jdkName = "1.8"
-        languageLevel = IdeaLanguageLevel("8")
-        vcs = "Git"
-    }
+idea.project {
+    jdkName = "1.8"
+    languageLevel = IdeaLanguageLevel("8")
+    vcs = "Git"
 }
 
 configure<JavaPluginConvention> {

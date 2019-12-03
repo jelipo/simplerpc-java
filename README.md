@@ -10,7 +10,7 @@
 ## How to use 
 ###### 演示文件
 ```
---com.springmarker.test 
+--com.Jelipo.test 
 ----Main.java 
 ----People.java
 ----ProxyInterface.java
@@ -66,14 +66,14 @@ public class Main {
         RpcServer rpcServer = new RpcServer()
                 .port(port)
                 //扫描被注解的类的路径
-                .classesPath("com.springmarker.test")
+                .classesPath("com.Jelipo.test")
                 .start();
 
         //启动RPC客户端
         RpcClient rpcClient = new RpcClient()
                 //连接RPC服务
                 .hostAndPort("localhost", port)
-                .classesPath("com.springmarker.test")
+                .classesPath("com.Jelipo.test")
                 .connect();
         
         //从client中获取RPC接口的代理类。
@@ -109,7 +109,7 @@ public class Main {
 Sync: Name:小丽. Age:18
 Async: Name 老王 Age 35
 null
-java.util.concurrent.CompletionException: com.springmarker.simplerpc.exception.RemoteCallException: An exception occurred when calling a remote method.
+java.util.concurrent.CompletionException: com.Jelipo.simplerpc.exception.RemoteCallException: An exception occurred when calling a remote method.
 	at java.util.concurrent.CompletableFuture.encodeThrowable(CompletableFuture.java:292)
 	at java.util.concurrent.CompletableFuture.completeThrowable(CompletableFuture.java:308)
 	at java.util.concurrent.CompletableFuture.uniWhenComplete(CompletableFuture.java:769)
