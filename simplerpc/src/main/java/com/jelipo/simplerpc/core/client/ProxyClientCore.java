@@ -29,7 +29,7 @@ public class ProxyClientCore implements MethodInterceptor {
      * 处理同步方法
      */
     private Object handleSyncRequest(Object obj, Method method, Object[] args, MethodProxy proxy) throws Exception {
-        Object objTemp = checkMethod(method);
+        Object objTemp = tryInterceptObjectMethod(method);
         if (objTemp != null) {
             return objTemp;
         }
@@ -84,15 +84,22 @@ public class ProxyClientCore implements MethodInterceptor {
     }
 
     /**
-     * 检查Method是否合规，如果遇到toString之类的Object方法，可能会做拦截处理并直接返回相应的值。
+     * 拦截Method是否合规，如果遇到toString之类的Object方法，可能会做拦截处理并直接返回相应的值。
      *
      * @param method
-     * @return 如果为null，说明没问题，可以继续执行。2如果不为null，说明method已被拦截并处理，返回值即为处理结果。
+     * @return 如果为null，说明未被拦截，可以继续执行。2如果不为null，说明method已被拦截并处理，返回值即为处理结果。
      */
-    private Object checkMethod(Method method) {
-        if ("toString".equals(method.getName())) {
-            return "A class Proxyed by Cglib.Class name:" + method.getDeclaringClass().getName();
+    private Object tryInterceptObjectMethod(Method method) {
+        String methodName = method.getName();
+        if (methodName == null) {
+            return null;
         }
-        return null;
+        switch (methodName) {
+            case "toString": {
+                return "A class Proxyed by Cglib. Class name:" + method.getDeclaringClass().getName();
+            }
+            default:
+                return null;
+        }
     }
 }

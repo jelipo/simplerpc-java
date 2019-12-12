@@ -56,7 +56,7 @@ public class KryoDataSerialization implements DataSerialization {
 
     /**
      * 因为Kroy会用到buffer缓存，为了重复使用,请设置一个合理的buffer最大值。
-     * 此Buffer会常驻内存，且为多个，一帮低负载情况下，buffer的总大小会小于等于 CPU逻辑核心数*2*buffersize，
+     * 此Buffer会常驻内存，且为多个，一般低负载情况下，buffer的总大小会小于等于 CPU逻辑核心数*2*buffersize，
      * 但是到高负载情况下，会高于此值。
      *
      * @param maxBufferSize
@@ -71,14 +71,15 @@ public class KryoDataSerialization implements DataSerialization {
     }
 
     @Override
-    public byte[] serialize(ExchangeRequest exchangeRequest) throws SerializationException {
-        return commonSerialize(exchangeRequest);
+    public byte[] serialize(RpcRequest rpcRequest) throws SerializationException {
+        return commonSerialize(rpcRequest);
     }
 
     @Override
-    public byte[] serialize(ExchangeResponse exchangeResponse) throws SerializationException {
-        return commonSerialize(exchangeResponse);
+    public byte[] serialize(RpcResponse rpcResponse) throws SerializationException {
+        return commonSerialize(rpcResponse);
     }
+
 
     /**
      * 内部通用的序列化方法。
@@ -101,17 +102,16 @@ public class KryoDataSerialization implements DataSerialization {
         }
     }
 
-
     @Override
-    public ExchangeRequest deserializeRequest(InputStream inputStream) throws DeserializationException {
+    public RpcRequest deserializeRequest(InputStream inputStream) throws DeserializationException {
         Input input = new Input(inputStream);
-        return (ExchangeRequest) commonDeserialize(input, ExchangeRequest.class);
+        return (RpcRequest) commonDeserialize(input, RpcRequest.class);
     }
 
     @Override
-    public ExchangeResponse deserializeResponse(InputStream inputStream) throws DeserializationException {
+    public RpcRequest deserializeResponse(InputStream inputStream) throws DeserializationException {
         Input input = new Input(inputStream);
-        return (ExchangeResponse) commonDeserialize(input, ExchangeResponse.class);
+        return (RpcRequest) commonDeserialize(input, RpcRequest.class);
     }
 
 

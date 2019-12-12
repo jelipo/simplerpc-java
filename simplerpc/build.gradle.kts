@@ -26,7 +26,7 @@ dependencies {
     //序列化
     compileOnly("com.esotericsoftware:kryo:5.0.0-RC4")
     //网络协议
-    compileOnly("io.netty:netty-all:4.1.36.Final")
+    compileOnly("io.netty:netty-all:4.1.43.Final")
     //lombok
     compileOnly("org.projectlombok:lombok:$lombokVersion")
     annotationProcessor("org.projectlombok:lombok:$lombokVersion")

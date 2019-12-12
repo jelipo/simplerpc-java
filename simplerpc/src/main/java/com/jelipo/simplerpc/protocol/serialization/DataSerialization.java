@@ -4,6 +4,8 @@ import com.jelipo.simplerpc.exception.DeserializationException;
 import com.jelipo.simplerpc.pojo.ExchangeRequest;
 import com.jelipo.simplerpc.pojo.ExchangeResponse;
 import com.jelipo.simplerpc.exception.SerializationException;
+import com.jelipo.simplerpc.pojo.RpcRequest;
+import com.jelipo.simplerpc.pojo.RpcResponse;
 
 import java.io.InputStream;
 
@@ -18,18 +20,18 @@ public interface DataSerialization {
     /**
      * 序列化
      *
-     * @param exchangeRequest 要序列化的对象
+     * @param rpcRequest 要序列化的对象
      * @return
      */
-    byte[] serialize(ExchangeRequest exchangeRequest) throws SerializationException;
+    byte[] serialize(RpcRequest rpcRequest) throws SerializationException;
 
     /**
      * 序列化
      *
-     * @param exchangeResponse 要序列化的对象
+     * @param rpcResponse 要序列化的对象
      * @return
      */
-    byte[] serialize(ExchangeResponse exchangeResponse) throws SerializationException;
+    byte[] serialize(RpcResponse rpcResponse) throws SerializationException;
 
 
     /**
@@ -38,7 +40,7 @@ public interface DataSerialization {
      * @param inputStream 输入流
      * @return
      */
-    ExchangeRequest deserializeRequest(InputStream inputStream) throws DeserializationException;
+    RpcRequest deserializeRequest(InputStream inputStream) throws DeserializationException;
 
     /**
      * 反序列化
@@ -46,6 +48,6 @@ public interface DataSerialization {
      * @param inputStream 输入流
      * @return
      */
-    ExchangeResponse deserializeResponse(InputStream inputStream) throws DeserializationException;
+    RpcRequest deserializeResponse(InputStream inputStream) throws DeserializationException;
 
 }

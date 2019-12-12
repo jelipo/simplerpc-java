@@ -25,7 +25,7 @@ public class ExchangeRequest {
      * 识别请求和回应的ID。
      */
     private int id;
-    private RpcRequest rpcRequest;
 
+    private RpcRequest rpcRequest;
 
 }

@@ -46,6 +46,11 @@ public class NettyServerMainHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         try {
             ByteBufInputStream byteBufInputStream = new ByteBufInputStream((ByteBuf) msg);
+            short headerLength = byteBufInputStream.readShort();
+            byte[] bytes = new byte[headerLength];
+            int read = byteBufInputStream.read(bytes);
+
+
             ExchangeRequest exchangeRequest = dataSerialization.deserializeRequest(byteBufInputStream);
             for (NettyWorker nettyHandlerWorker : workerList) {
                 if (nettyHandlerWorker.handle(ctx, exchangeRequest)) {
