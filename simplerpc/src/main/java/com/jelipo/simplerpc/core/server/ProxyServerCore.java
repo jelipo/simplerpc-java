@@ -1,5 +1,6 @@
 package com.jelipo.simplerpc.core.server;
 
+import com.jelipo.simplerpc.pojo.ProtocolMeta;
 import com.jelipo.simplerpc.pojo.RpcRequest;
 import com.jelipo.simplerpc.pojo.RpcResponse;
 
@@ -19,11 +20,11 @@ public class ProxyServerCore {
         this.receiver = receiver;
     }
 
-    public RpcResponse handleMethod(RpcRequest rpcRequest) {
+    public RpcResponse handleMethod(RpcRequest rpcRequest, ProtocolMeta protocolHeader) {
         return receiver.receive(rpcRequest.getMethodHashCode(), rpcRequest.getParamList());
     }
 
-    public void handleAsyncMethod(RpcRequest rpcRequest, CompletableFuture future) {
+    public void handleAsyncMethod(RpcRequest rpcRequest, CompletableFuture future, ProtocolMeta protocolHeader) {
         int methodHashCode = rpcRequest.getMethodHashCode();
         ArrayList<Object> paramList = rpcRequest.getParamList();
         receiver.receiveAsync(methodHashCode, paramList, future);

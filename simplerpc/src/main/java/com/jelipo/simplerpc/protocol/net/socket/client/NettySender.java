@@ -68,7 +68,7 @@ public class NettySender implements RpcSender {
     @Override
     public CompletableFuture<Object> asyncSend(RpcRequest rpcRequest) throws Exception {
         ExchangeRequest exchangeRequest = buildExchangeRequest(rpcRequest);
-        byte[] bytes = dataSerialization.serialize(exchangeRequest);
+        byte[] bytes = dataSerialization.serialize(rpcRequest);
         ByteBuf byteBuf = Unpooled.copiedBuffer(bytes);
 
 
