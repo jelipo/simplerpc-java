@@ -16,7 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 public class RpcRequest {
 
-    private int methodHashCode;
+    private long methodHashCode;
 
     private ArrayList<Object> paramList;
 

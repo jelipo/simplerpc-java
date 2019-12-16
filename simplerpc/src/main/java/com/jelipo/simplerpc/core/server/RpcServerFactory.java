@@ -105,7 +105,7 @@ public class RpcServerFactory {
         /**
          * key:RPC接口的某个方法的HashCode。 value:RPC接口实现类的某个方法。
          */
-        private HashMap<Integer, Method> implMethodMapByInterfaceMethodHashcode = new HashMap<>();
+        private HashMap<Long, Method> implMethodMapByInterfaceMethodHashcode = new HashMap<>();
 
         ClassCteatorFactory(Collection<Class> interfaceClass) {
             this.interfaceClassSet = new HashSet<>(interfaceClass);
@@ -117,7 +117,7 @@ public class RpcServerFactory {
          * @param hashcode RPC接口的某个方法的HashCode
          * @return 对应 RPC接口实现类某个方法 的某个方法
          */
-        Method getImplMethodByInterfaceMethod(int hashcode) {
+        Method getImplMethodByInterfaceMethod(long hashcode) {
             return implMethodMapByInterfaceMethodHashcode.get(hashcode);
         }
 
@@ -133,13 +133,19 @@ public class RpcServerFactory {
          */
         boolean add(Class implClazz) throws NoSuchMethodException, IllegalAccessException,
                 InvocationTargetException, InstantiationException, NotRpcImplClassException {
-            if (objectMapByImplClass.containsKey(implClazz)) return false;
+            if (objectMapByImplClass.containsKey(implClazz)) {
+                return false;
+            }
 
             for (Class<?> interfaceClass : implClazz.getInterfaces()) {
                 //判断是否实现了RPC接口。
-                if (!interfaceClassSet.contains(interfaceClass)) continue;
+                if (!interfaceClassSet.contains(interfaceClass)) {
+                    continue;
+                }
                 //判断RPC接口是否存在 已经存储了的实现类。
-                if (implClassMapByInterfaceClass.containsKey(interfaceClass)) return false;
+                if (implClassMapByInterfaceClass.containsKey(interfaceClass)) {
+                    return false;
+                }
                 newRpcClass(implClazz, interfaceClass);
                 return true;
             }

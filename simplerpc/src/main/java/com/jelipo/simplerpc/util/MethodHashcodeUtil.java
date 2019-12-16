@@ -9,18 +9,21 @@ import java.lang.reflect.Method;
 public class MethodHashcodeUtil {
 
     /**
-     * 获取方法的唯一 Hascode
+     * 获取方法的唯一 Hashcode
      *
      * @param method Java的 Method 实体类
      * @return hashcode
      */
-    public static int methodHashcode(Method method) {
-        int i = method.getDeclaringClass().getName().hashCode() ^ method.getName().hashCode();
+    public static long methodHashcode(Method method) {
+        int methodNameHashCode = method.getName().hashCode();
         StringBuilder stringBuilder = new StringBuilder();
+
         for (Class<?> parameterType : method.getParameterTypes()) {
             stringBuilder.append(parameterType.getName());
         }
-        return i ^ stringBuilder.toString().hashCode();
+        int methodHashCode = methodNameHashCode ^ stringBuilder.toString().hashCode();
+        int classHashCode = method.getDeclaringClass().getName().hashCode();
+        return classHashCode * 10000000000L + methodHashCode;
     }
 
 }
