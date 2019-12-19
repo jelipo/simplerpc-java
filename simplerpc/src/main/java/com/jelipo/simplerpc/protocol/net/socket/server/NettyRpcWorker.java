@@ -1,8 +1,13 @@
 package com.jelipo.simplerpc.protocol.net.socket.server;
 
+import com.google.common.primitives.Shorts;
 import com.jelipo.simplerpc.core.server.ProxyServerCore;
 import com.jelipo.simplerpc.exception.SerializationException;
-import com.jelipo.simplerpc.pojo.*;
+import com.jelipo.simplerpc.pojo.ExceptionType;
+import com.jelipo.simplerpc.pojo.ProtocolMeta;
+import com.jelipo.simplerpc.pojo.RpcRequest;
+import com.jelipo.simplerpc.pojo.RpcResponse;
+import com.jelipo.simplerpc.protocol.net.CommonMetaUtils;
 import com.jelipo.simplerpc.protocol.serialization.DataSerialization;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
@@ -31,21 +36,20 @@ public class NettyRpcWorker implements NettyWorker, NettyExceptionWorker {
     }
 
     @Override
-    public boolean handle(ChannelHandlerContext ctx, ExchangeRequest exchangeRequest) throws Exception {
-        RpcRequest rpcRequest = exchangeRequest.getRpcRequest();
-        int nettyId = exchangeRequest.getId();
+    public boolean handle(ChannelHandlerContext ctx, ProtocolMeta protocolMeta, RpcRequest rpcRequest) throws Exception {
+        int nettyId = protocolMeta.getRpcId();
         if (rpcRequest == null) {
             return false;
         }
         //判断是否是异步请求
         if (rpcRequest.getAsync() == 0) {
-            RpcResponse rpcResponse = proxyServerCore.handleMethod(rpcRequest);
-            returnResult(ctx, new ExchangeResponse(nettyId, rpcResponse));
+            RpcResponse rpcResponse = proxyServerCore.handleMethod(rpcRequest, protocolMeta);
+            returnResult(ctx, rpcResponse, nettyId);
         } else {
             CompletableFuture<RpcResponse> future = new CompletableFuture<>();
-            proxyServerCore.handleAsyncMethod(rpcRequest, future);
+            proxyServerCore.handleAsyncMethod(rpcRequest, future, protocolMeta);
             RpcResponse rpcResponse = future.get();
-            returnResult(ctx, new ExchangeResponse(nettyId, rpcResponse));
+            returnResult(ctx, rpcResponse, nettyId);
         }
         return true;
     }
@@ -53,24 +57,25 @@ public class NettyRpcWorker implements NettyWorker, NettyExceptionWorker {
     /**
      * 此方法主要把rpcResponse序列化为bytes，并通过Netty发送。
      */
-    private void returnResult(ChannelHandlerContext ctx, ExchangeResponse exchangeResponse) {
+    private void returnResult(ChannelHandlerContext ctx, RpcResponse rpcResponse, int rpcId) {
         byte[] rpcResponseBytes = null;
+        byte[] metaBytes = CommonMetaUtils.toBytes(false, rpcId, "", null);
         try {
-            rpcResponseBytes = dataSerialization.serialize(exchangeResponse);
+            rpcResponseBytes = dataSerialization.serialize(rpcResponse);
         } catch (SerializationException e) {
             try {
-                exchangeResponse.getRpcResponse().setResult(null);
-                exchangeResponse.getRpcResponse().setException(ExceptionType.SERIALIZED_EXCEPTION);
-                rpcResponseBytes = dataSerialization.serialize(exchangeResponse);
+                rpcResponse.setResult(null);
+                rpcResponse.setException(ExceptionType.SERIALIZED_EXCEPTION);
+                rpcResponseBytes = dataSerialization.serialize(rpcResponse);
             } catch (SerializationException ex) {
                 ex.printStackTrace();
             }
         }
-        ctx.writeAndFlush(Unpooled.copiedBuffer(rpcResponseBytes));
+        ctx.writeAndFlush(Unpooled.copiedBuffer(Shorts.toByteArray((short) metaBytes.length), metaBytes, rpcResponseBytes));
     }
 
     @Override
     public void exception(ChannelHandlerContext ctx, int exceptionType) {
-        returnResult(ctx, new ExchangeResponse(-1, new RpcResponse(null, exceptionType)));
+        returnResult(ctx, new RpcResponse(null, exceptionType), -1);
     }
 }

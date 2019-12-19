@@ -2,6 +2,9 @@ package com.jelipo.simplerpc.protocol.net.socket.server;
 
 import com.jelipo.simplerpc.pojo.ExceptionType;
 import com.jelipo.simplerpc.pojo.ExchangeRequest;
+import com.jelipo.simplerpc.pojo.ProtocolMeta;
+import com.jelipo.simplerpc.pojo.RpcRequest;
+import com.jelipo.simplerpc.protocol.net.CommonMetaUtils;
 import com.jelipo.simplerpc.protocol.serialization.DataSerialization;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
@@ -27,9 +30,13 @@ public class NettyServerMainHandler extends ChannelInboundHandlerAdapter {
 
     private final DataSerialization dataSerialization;
 
+    private final NettyHeartBeatWorker nettyHeartBeatWorker;
+
     public NettyServerMainHandler(List<NettyWorker> workerList,
                                   NettyExceptionWorker exceptionWorker,
+                                  NettyHeartBeatWorker nettyHeartBeatWorker,
                                   DataSerialization dataSerialization) {
+        this.nettyHeartBeatWorker = nettyHeartBeatWorker;
         this.workerList = workerList;
         this.exceptionWorker = exceptionWorker;
         this.dataSerialization = dataSerialization;
@@ -49,11 +56,14 @@ public class NettyServerMainHandler extends ChannelInboundHandlerAdapter {
             short headerLength = byteBufInputStream.readShort();
             byte[] bytes = new byte[headerLength];
             int read = byteBufInputStream.read(bytes);
-
-
-            ExchangeRequest exchangeRequest = dataSerialization.deserializeRequest(byteBufInputStream);
+            ProtocolMeta protocolMeta = CommonMetaUtils.deserialize(bytes);
+            if (protocolMeta.isHreatBeat()) {
+                nettyHeartBeatWorker.handle(ctx, protocolMeta, null);
+                return;
+            }
+            RpcRequest rpcRequest = dataSerialization.deserializeRequest(byteBufInputStream);
             for (NettyWorker nettyHandlerWorker : workerList) {
-                if (nettyHandlerWorker.handle(ctx, exchangeRequest)) {
+                if (nettyHandlerWorker.handle(ctx, protocolMeta, rpcRequest)) {
                     break;
                 }
             }

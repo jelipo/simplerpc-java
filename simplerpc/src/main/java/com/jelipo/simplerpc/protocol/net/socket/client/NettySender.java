@@ -1,11 +1,11 @@
 package com.jelipo.simplerpc.protocol.net.socket.client;
 
 import com.google.common.cache.Cache;
-import com.google.common.primitives.Ints;
+import com.google.common.primitives.Shorts;
 import com.jelipo.simplerpc.core.client.RpcSender;
 import com.jelipo.simplerpc.exception.RemoteCallException;
-import com.jelipo.simplerpc.pojo.ExchangeRequest;
 import com.jelipo.simplerpc.pojo.RpcRequest;
+import com.jelipo.simplerpc.protocol.net.CommonMetaUtils;
 import com.jelipo.simplerpc.protocol.serialization.DataSerialization;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -35,7 +35,7 @@ public class NettySender implements RpcSender {
     /**
      * 每个NettySender实体都有一个随机生成的id，作为CLientId使用。
      */
-    private final int clientId = new Random(Integer.MAX_VALUE).nextInt();
+    private final String clientId = "" + new Random(Integer.MAX_VALUE).nextInt();
 
     /**
      * 用于发送Netty消息的Channel。
@@ -55,7 +55,7 @@ public class NettySender implements RpcSender {
     /**
      * 用于控制速率使用。
      */
-    private final Semaphore permit = new Semaphore(Runtime.getRuntime().availableProcessors() * 2);
+    private final Semaphore permit = new Semaphore(Runtime.getRuntime().availableProcessors() * 4);
 
 
     @Override
@@ -67,10 +67,12 @@ public class NettySender implements RpcSender {
 
     @Override
     public CompletableFuture<Object> asyncSend(RpcRequest rpcRequest) throws Exception {
-        ExchangeRequest exchangeRequest = buildExchangeRequest(rpcRequest);
-        byte[] bytes = dataSerialization.serialize(rpcRequest);
-        ByteBuf byteBuf = Unpooled.copiedBuffer(bytes);
+        int rpcId = generateNettyNetId();
 
+        byte[] metaBytes = CommonMetaUtils.toBytes(false, rpcId, clientId, null);
+        byte[] bytes = dataSerialization.serialize(rpcRequest);
+        byte[] bytes1 = Shorts.toByteArray((short) metaBytes.length);
+        ByteBuf byteBuf = Unpooled.copiedBuffer(bytes1, metaBytes, bytes);
 
         CompletableFuture<Object> completableFuture = new CompletableFuture<>();
 
@@ -79,21 +81,13 @@ public class NettySender implements RpcSender {
         channelFuture.addListener((ChannelFutureListener) future -> {
             permit.release();
             if (future.isSuccess()) {
-                cache.put(exchangeRequest.getId(), completableFuture);
+                cache.put(rpcId, completableFuture);
             } else {
                 completableFuture.completeExceptionally(new RemoteCallException("Rpc failed to write messages."));
             }
         });
         channel.flush();
         return completableFuture;
-    }
-
-    /**
-     * @param rpcRequest
-     * @return 专门为client和server之间网络通讯的包装对象。
-     */
-    private ExchangeRequest buildExchangeRequest(RpcRequest rpcRequest) {
-        return new ExchangeRequest(1, clientId, generateNettyNetId(), rpcRequest);
     }
 
     private final AtomicInteger atomicInteger = new AtomicInteger(0);

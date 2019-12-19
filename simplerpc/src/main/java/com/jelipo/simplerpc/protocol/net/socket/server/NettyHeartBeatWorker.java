@@ -2,7 +2,8 @@ package com.jelipo.simplerpc.protocol.net.socket.server;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.jelipo.simplerpc.pojo.ExchangeRequest;
+import com.jelipo.simplerpc.pojo.ProtocolMeta;
+import com.jelipo.simplerpc.pojo.RpcRequest;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
@@ -71,12 +72,12 @@ public class NettyHeartBeatWorker implements NettyWorker {
     }
 
     @Override
-    public boolean handle(ChannelHandlerContext ctx, ExchangeRequest exchangeRequest) throws Exception {
+    public boolean handle(ChannelHandlerContext ctx, ProtocolMeta protocolMeta, RpcRequest rpcRequest) throws Exception {
         AtomicInteger retryTimesAtomic = cache.getIfPresent(ctx);
         if (retryTimesAtomic != null) {
             retryTimesAtomic.set(0);
         }
-        if (exchangeRequest.getStatus() == 0) {
+        if (protocolMeta.isHreatBeat()) {
             logger.trace("Get the latest information ,clearing up 'retryTimes'.");
             return true;
         }

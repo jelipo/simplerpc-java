@@ -109,9 +109,9 @@ public class KryoDataSerialization implements DataSerialization {
     }
 
     @Override
-    public RpcRequest deserializeResponse(InputStream inputStream) throws DeserializationException {
+    public RpcResponse deserializeResponse(InputStream inputStream) throws DeserializationException {
         Input input = new Input(inputStream);
-        return (RpcRequest) commonDeserialize(input, RpcRequest.class);
+        return (RpcResponse) commonDeserialize(input, RpcResponse.class);
     }
 
 

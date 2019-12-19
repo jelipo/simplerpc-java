@@ -24,7 +24,7 @@ import java.util.Map;
  */
 public class CommonMetaUtils {
 
-    static byte[] toBytes(boolean isHeatBeat, int rpcId, String clientId, Map<String, String> customParams) {
+    public static byte[] toBytes(boolean isHeatBeat, int rpcId, String clientId, Map<String, String> customParams) {
         StringBuilder metaBuilder = new StringBuilder();
         metaBuilder.append('h').append(':').append(isHeatBeat ? '0' : '1').append("\n");
         metaBuilder.append('r').append(':').append(rpcId).append("\n");
@@ -35,7 +35,7 @@ public class CommonMetaUtils {
         return metaBuilder.toString().getBytes();
     }
 
-    static ProtocolMeta deserialize(byte[] bytes) {
+    public static ProtocolMeta deserialize(byte[] bytes) {
         ProtocolMeta protocolMeta = new ProtocolMeta();
         int lastIndex = 0;
         byte singleByte = 0;

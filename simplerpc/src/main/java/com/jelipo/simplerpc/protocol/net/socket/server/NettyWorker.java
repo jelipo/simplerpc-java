@@ -1,6 +1,7 @@
 package com.jelipo.simplerpc.protocol.net.socket.server;
 
-import com.jelipo.simplerpc.pojo.ExchangeRequest;
+import com.jelipo.simplerpc.pojo.ProtocolMeta;
+import com.jelipo.simplerpc.pojo.RpcRequest;
 import io.netty.channel.ChannelHandlerContext;
 
 /**
@@ -20,12 +21,13 @@ public interface NettyWorker {
     /**
      * 业务逻辑的主要处理方法。
      *
-     * @param ctx             Netty的ChannelHandlerContext
-     * @param exchangeRequest 用于rpc client发送给server 交互的Request。
+     * @param ctx          Netty的ChannelHandlerContext
+     * @param protocolMeta 协议的 META 信息
+     * @param rpcRequest   用于rpc client发送给server 交互的Request。
      * @return 是否是此handle所需要的，如果true，说明不需要向后执行worker。
      * @throws Exception 处理期间产生的异常全部捕获。
      */
-    boolean handle(ChannelHandlerContext ctx, ExchangeRequest exchangeRequest) throws Exception;
+    boolean handle(ChannelHandlerContext ctx, ProtocolMeta protocolMeta, RpcRequest rpcRequest) throws Exception;
 
 
 }

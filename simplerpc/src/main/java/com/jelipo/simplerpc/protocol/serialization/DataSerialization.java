@@ -48,6 +48,6 @@ public interface DataSerialization {
      * @param inputStream 输入流
      * @return
      */
-    RpcRequest deserializeResponse(InputStream inputStream) throws DeserializationException;
+    RpcResponse deserializeResponse(InputStream inputStream) throws DeserializationException;
 
 }

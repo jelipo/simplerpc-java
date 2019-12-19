@@ -1,12 +1,13 @@
 package com.jelipo.simplerpc.protocol.net.socket.client;
 
 import com.google.common.cache.Cache;
+import com.google.common.primitives.Shorts;
 import com.jelipo.simplerpc.exception.RemoteCallException;
 import com.jelipo.simplerpc.exception.SerializationException;
 import com.jelipo.simplerpc.pojo.ExceptionType;
-import com.jelipo.simplerpc.pojo.ExchangeRequest;
-import com.jelipo.simplerpc.pojo.ExchangeResponse;
+import com.jelipo.simplerpc.pojo.ProtocolMeta;
 import com.jelipo.simplerpc.pojo.RpcResponse;
+import com.jelipo.simplerpc.protocol.net.CommonMetaUtils;
 import com.jelipo.simplerpc.protocol.serialization.DataSerialization;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
@@ -41,8 +42,9 @@ class NettySenderHandler extends ChannelInboundHandlerAdapter {
 
     private ByteBuf getHeartBeatByteBuf() throws SerializationException {
         if (heartBeatByteBuf == null) {
-            ExchangeRequest exchangeRequest = new ExchangeRequest(0, 0, 0, null);
-            ByteBuf heartBeatByteBuf = Unpooled.copiedBuffer(dataSerialization.serialize(exchangeRequest));
+            byte[] metaBytes = CommonMetaUtils.toBytes(true, 0, "", null);
+            byte[] bytes = Shorts.toByteArray((short) metaBytes.length);
+            ByteBuf heartBeatByteBuf = Unpooled.copiedBuffer(bytes, metaBytes);
             this.heartBeatByteBuf = heartBeatByteBuf.asReadOnly();
         }
         return heartBeatByteBuf;
@@ -68,48 +70,54 @@ class NettySenderHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        ExchangeResponse exchangeResponse;
+        RpcResponse rpcResponse;
         try {
             ByteBuf bytebuf = (ByteBuf) msg;
-            exchangeResponse = dataSerialization.deserializeResponse(new ByteBufInputStream(bytebuf));
+            ByteBufInputStream byteBufInputStream = new ByteBufInputStream(bytebuf);
+
+            short headerLength = byteBufInputStream.readShort();
+            byte[] bytes = new byte[headerLength];
+            int read = byteBufInputStream.read(bytes);
+            ProtocolMeta protocolMeta = CommonMetaUtils.deserialize(bytes);
+            rpcResponse = dataSerialization.deserializeResponse(byteBufInputStream);
+
+            int id = protocolMeta.getRpcId();
+            if (id < 0) {
+                System.out.println("有异常。");
+                return;
+            }
+
+            CompletableFuture<Object> future = cache.getIfPresent(id);
+            cache.invalidate(id);
+            if (future == null) {
+                System.out.println("找不到id相对应的缓存，可能已经超时/缓存设置太小。id:" + id);
+                return;
+            }
+            int exceptionCode = rpcResponse.getException();
+            switch (exceptionCode) {
+                case ExceptionType.NO_EXCEPTION:
+                    future.complete(rpcResponse.getResult());
+                    return;
+                case ExceptionType.RPC_METHOD_EXCEPTION:
+                    future.completeExceptionally(new RemoteCallException("An exception occurred when calling a remote method."));
+                    return;
+                case ExceptionType.RPC_INNER_EXCEPTION:
+                    future.completeExceptionally(new RemoteCallException("Abnormality in RPC.Pelease check network / object size / supported serialized objects "));
+                    return;
+                case ExceptionType.NO_SUCHMETHOD_EXCEPTION:
+                    future.completeExceptionally(new NoSuchMethodException("No such method in remote server."));
+                    return;
+                case ExceptionType.SERIALIZED_EXCEPTION:
+                    future.completeExceptionally(new RemoteCallException("Abnormality in RPC. Serialized exception."));
+                    return;
+                case ExceptionType.NETWORK_TRANSMISSION_EXCEPTION:
+                    future.completeExceptionally(new RemoteCallException("Abnormality in RPC. Exception occurred during netty transmission."));
+                    return;
+                default:
+                    future.completeExceptionally(new UnknownError("Unknow remote call exception code: " + rpcResponse.getException()));
+            }
         } finally {
             ReferenceCountUtil.release(msg);
-        }
-        int id = exchangeResponse.getId();
-        if (id < 0) {
-            System.out.println("有异常。");
-            return;
-        }
-        CompletableFuture<Object> future = cache.getIfPresent(exchangeResponse.getId());
-        cache.invalidate(exchangeResponse.getId());
-        if (future == null) {
-            System.out.println("找不到id相对应的缓存，可能已经超时/缓存设置太小。id:" + exchangeResponse.getId());
-            return;
-        }
-
-        RpcResponse rpcResponse = exchangeResponse.getRpcResponse();
-        int exceptionCode = rpcResponse.getException();
-        switch (exceptionCode) {
-            case ExceptionType.NO_EXCEPTION:
-                future.complete(rpcResponse.getResult());
-                return;
-            case ExceptionType.RPC_METHOD_EXCEPTION:
-                future.completeExceptionally(new RemoteCallException("An exception occurred when calling a remote method."));
-                return;
-            case ExceptionType.RPC_INNER_EXCEPTION:
-                future.completeExceptionally(new RemoteCallException("Abnormality in RPC.Pelease check network / object size / supported serialized objects "));
-                return;
-            case ExceptionType.NO_SUCHMETHOD_EXCEPTION:
-                future.completeExceptionally(new NoSuchMethodException("No such method in remote server."));
-                return;
-            case ExceptionType.SERIALIZED_EXCEPTION:
-                future.completeExceptionally(new RemoteCallException("Abnormality in RPC. Serialized exception."));
-                return;
-            case ExceptionType.NETWORK_TRANSMISSION_EXCEPTION:
-                future.completeExceptionally(new RemoteCallException("Abnormality in RPC. Exception occurred during netty transmission."));
-                return;
-            default:
-                future.completeExceptionally(new UnknownError("Unknow remote call exception code: " + rpcResponse.getException()));
         }
     }
 
