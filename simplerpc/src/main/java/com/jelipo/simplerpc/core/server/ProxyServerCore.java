@@ -25,7 +25,7 @@ public class ProxyServerCore {
     }
 
     public void handleAsyncMethod(RpcRequest rpcRequest, CompletableFuture future, ProtocolMeta protocolHeader) {
-        int methodHashCode = rpcRequest.getMethodHashCode();
+        long methodHashCode = rpcRequest.getMethodHashCode();
         ArrayList<Object> paramList = rpcRequest.getParamList();
         receiver.receiveAsync(methodHashCode, paramList, future);
     }

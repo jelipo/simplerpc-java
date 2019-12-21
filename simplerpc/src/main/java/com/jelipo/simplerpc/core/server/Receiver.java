@@ -28,7 +28,7 @@ public class Receiver {
      * @param paramList      参数List。
      * @return
      */
-    RpcResponse receive(int methodHashCode, ArrayList<Object> paramList) {
+    RpcResponse receive(long methodHashCode, ArrayList<Object> paramList) {
         Method method = rpcServerFactory.getImplMethodByInterfaceMethodHashcode(methodHashCode);
         //没有相应的方法，直接返回。
         if (method == null) {
@@ -52,7 +52,7 @@ public class Receiver {
      * @param paramList      参数List。
      * @param future         传递过来的异步 {@link CompletableFuture}。用于给内部RPC传递结果。
      */
-    void receiveAsync(int methodHashCode, ArrayList<Object> paramList, CompletableFuture<RpcResponse> future) {
+    void receiveAsync(long methodHashCode, ArrayList<Object> paramList, CompletableFuture<RpcResponse> future) {
         Method method = rpcServerFactory.getImplMethodByInterfaceMethodHashcode(methodHashCode);
         //没有相应的方法，直接对传递过来的future执行完成。
         if (method == null) {

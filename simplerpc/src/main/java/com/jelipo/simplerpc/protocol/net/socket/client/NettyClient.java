@@ -46,7 +46,7 @@ public class NettyClient implements RpcClientInterface {
      * 用于存放 释放锁对象 的缓存。
      */
     private Cache<Integer, CompletableFuture<Object>> cache = CacheBuilder.newBuilder()
-            .maximumSize(Integer.MAX_VALUE)
+            .maximumSize(65536)
             .expireAfterWrite(cacheTime, TimeUnit.SECONDS)
             .build();
 

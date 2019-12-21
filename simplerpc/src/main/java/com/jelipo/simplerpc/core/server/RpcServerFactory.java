@@ -59,7 +59,7 @@ public class RpcServerFactory {
      * @param hashCode Rpc接口的某个方法的hashcode。
      * @return Rpc接口实现类的某个方法。
      */
-    public Method getImplMethodByInterfaceMethodHashcode(int hashCode) {
+    public Method getImplMethodByInterfaceMethodHashcode(long hashCode) {
         return classCteatorFactory.getImplMethodByInterfaceMethod(hashCode);
     }
 
