@@ -3,7 +3,7 @@ plugins {
     application
 }
 
-group = "com.mayabot"
+group = "com.jelipo"
 version = "0.0.1"
 
 repositories {
@@ -11,9 +11,25 @@ repositories {
     maven("https://repo.huaweicloud.com/repository/maven/")
     mavenCentral()
 }
+java {
+
+}
+
+tasks {
+    jar {
+        manifest {
+            attributes["Implementation-Title"] = "Gradle Jar File Example"
+            attributes["Implementation-Version"] = version
+            attributes["Main-Class"] = "com.jelipo.rpctest.Main"
+        }
+        from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) })
+    }
+}
 
 val jacksonVersion = "2.9.9"
 val lombokVersion = "1.18.8"
+
+
 
 dependencies {
     compileOnly("org.projectlombok:lombok:$lombokVersion")
@@ -33,3 +49,4 @@ dependencies {
 configure<JavaPluginConvention> {
     sourceCompatibility = JavaVersion.VERSION_1_8
 }
+

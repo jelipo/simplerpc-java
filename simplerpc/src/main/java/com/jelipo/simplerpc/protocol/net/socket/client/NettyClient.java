@@ -15,6 +15,8 @@ import io.netty.handler.timeout.IdleStateHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -46,9 +48,11 @@ public class NettyClient implements RpcClientInterface {
      * 用于存放 释放锁对象 的缓存。
      */
     private Cache<Integer, CompletableFuture<Object>> cache = CacheBuilder.newBuilder()
-            .maximumSize(65536)
+            .maximumSize(Integer.MAX_VALUE)
             .expireAfterWrite(cacheTime, TimeUnit.SECONDS)
             .build();
+
+    private int connectNum = 6;
 
     /**
      * 此构造方法会直接创建一个与Netty Server 的连接。
@@ -65,8 +69,18 @@ public class NettyClient implements RpcClientInterface {
 
     private void buildDefaultSender() throws InterruptedException {
         this.clientContext = new NettyClientContext(dataSerialization, config, cache);
-        Channel channel = start(0);
-        this.nettySender = new NettySender(clientContext, channel);
+
+        List<Channel> channelList = new ArrayList<>(connectNum);
+
+        for (int i = 0; i < connectNum; i++) {
+            Channel channel = start(0);
+            if (channel.isOpen()) {
+                channelList.add(channel);
+            } else {
+                logger.warn("有连接不可用");
+            }
+        }
+        nettySender = new NettySender(clientContext, channelList);
     }
 
     /**
@@ -102,6 +116,7 @@ public class NettyClient implements RpcClientInterface {
         // 同步等待启动客户端完成。
         return channelFuture.channel();
     }
+
 
     @Override
     public NettySender getNettySender() {

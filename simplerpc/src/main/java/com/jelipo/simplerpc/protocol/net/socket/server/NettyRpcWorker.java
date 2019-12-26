@@ -10,6 +10,7 @@ import com.jelipo.simplerpc.pojo.RpcResponse;
 import com.jelipo.simplerpc.protocol.net.CommonMetaUtils;
 import com.jelipo.simplerpc.protocol.serialization.DataSerialization;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 
 import java.util.concurrent.CompletableFuture;
@@ -71,7 +72,17 @@ public class NettyRpcWorker implements NettyWorker, NettyExceptionWorker {
                 ex.printStackTrace();
             }
         }
-        ctx.writeAndFlush(Unpooled.copiedBuffer(Shorts.toByteArray((short) metaBytes.length), metaBytes, rpcResponseBytes));
+        Channel channel = ctx.channel();
+        if (channel.isWritable()) {
+            channel.writeAndFlush(Unpooled.copiedBuffer(Shorts.toByteArray((short) metaBytes.length), metaBytes, rpcResponseBytes));
+        } else {
+            try {
+                channel.writeAndFlush(Unpooled.copiedBuffer(Shorts.toByteArray((short) metaBytes.length), metaBytes, rpcResponseBytes)).sync();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 
     @Override

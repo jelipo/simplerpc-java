@@ -11,33 +11,73 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @date 2019/12/20 0:49
  */
 public class Main {
+
     public static void main(String[] args) throws Exception {
+
+        String host = "192.168.100.254";
+
+        //String host = "localhost";
         //设置端口
         int port = 18080;
+        Main main = new Main();
+
+
+        main.startServer(port);
+        Thread.sleep(99999999);
+
+        main.testRpc(host, port, main);
+
+
+    }
+
+
+    private void startServer(int port) throws Exception {
         //启动RPC服务器
         RpcServer rpcServer = new RpcServer()
                 .port(port)
                 //扫描被注解的类的路径
                 .classesPath("com.jelipo.rpctest")
                 .start();
+    }
 
+    private void testRpc(String host, int port, Main main) throws Exception {
         //启动RPC客户端
         RpcClient rpcClient = new RpcClient()
                 //连接RPC服务
-                .hostAndPort("localhost", port)
+                .hostAndPort(host, port)
                 .classesPath("com.jelipo.rpctest")
                 .connect();
 
         //从client中获取RPC接口的代理类。
         ProxyInterface proxyInterfaceImpl = rpcClient.getRpcImpl(ProxyInterface.class);
 
-//
+        new Thread(() -> {
+            main.conn(proxyInterfaceImpl);
+        }).start();
 
-//        //同步调用RPC方法
-//        People people = new People("小丽", 18);
-//        //支持的参数和返回类型包括Java的基本类型、String、只包含基本类型(可嵌套)且有空构造方法的POJO类.
-//        String result = proxyInterfaceImpl.getUserData(people);
-//        System.out.println(result);
+        new Thread(() -> {
+            main.conn(proxyInterfaceImpl);
+        }).start();
+
+        new Thread(() -> {
+            main.conn(proxyInterfaceImpl);
+        }).start();
+
+        new Thread(() -> {
+            main.conn(proxyInterfaceImpl);
+        }).start();
+
+        new Thread(() -> {
+            main.conn(proxyInterfaceImpl);
+        }).start();
+
+        new Thread(() -> {
+            main.conn(proxyInterfaceImpl);
+        }).start();
+
+    }
+
+    private void conn(ProxyInterface proxyInterfaceImpl) {
 
         final long l = System.currentTimeMillis();
         int num = 200000;
@@ -53,15 +93,5 @@ public class Main {
                 }
             });
         }
-//
-//        //当异步调用远程方法，远程方法抛出异常时的处理。
-//        CompletableFuture<People> exceptionResult = proxyInterfaceImpl.getUserDataAsysn("不知道老王几岁");
-//        exceptionResult.whenComplete((people2, throwable) -> {
-//            System.out.println(people2);
-//        }).exceptionally(throwable -> {
-//            throwable.printStackTrace();
-//            return null;
-//        });
-
     }
 }

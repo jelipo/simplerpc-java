@@ -25,7 +25,7 @@ public class ProxyInterfaceImpl implements ProxyInterface {
     public CompletableFuture<People> getUserDataAsysn(String info) {
         return CompletableFuture.supplyAsync(() -> {
             String[] split = info.split(",");
-            return new People(split[0], Integer.parseInt(split[1]), new byte[102400]);
+            return new People(split[0], Integer.parseInt(split[1]), null);
         });
     }
 
