@@ -32,11 +32,12 @@ val lombokVersion = "1.18.8"
 
 
 dependencies {
+    implementation("com.google.guava:guava:28.1-jre")
     compileOnly("org.projectlombok:lombok:$lombokVersion")
     annotationProcessor("org.projectlombok:lombok:$lombokVersion")
     testAnnotationProcessor("org.projectlombok:lombok:$lombokVersion")
-    testCompile("org.projectlombok:lombok:$lombokVersion")
-    testCompile("org.junit.jupiter:junit-jupiter-api:5.4.2")
+    testImplementation("org.projectlombok:lombok:$lombokVersion")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.4.2")
     implementation(project(":simplerpc"))
 
     //序列化
