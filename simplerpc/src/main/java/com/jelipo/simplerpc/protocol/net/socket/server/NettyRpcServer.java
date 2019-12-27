@@ -14,7 +14,6 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.LengthFieldPrepender;
 import io.netty.handler.timeout.IdleStateHandler;
-import io.netty.util.internal.SystemPropertyUtil;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -43,7 +42,6 @@ public class NettyRpcServer extends AbstractRpcServer {
 
     @Override
     public void start() throws Exception {
-        System.setProperty("io.netty.maxDirectMemory", "" + 1024 * 1024 * 1024);
         NioEventLoopGroup bossGroup = new NioEventLoopGroup(6);
         NioEventLoopGroup workerGroup = new NioEventLoopGroup(10);
         ServerBootstrap serverBootstrap = new ServerBootstrap();
