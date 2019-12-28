@@ -49,8 +49,9 @@ public class NettyRpcWorker implements NettyWorker, NettyExceptionWorker {
         } else {
             CompletableFuture<RpcResponse> future = new CompletableFuture<>();
             proxyServerCore.handleAsyncMethod(rpcRequest, future, protocolMeta);
-            RpcResponse rpcResponse = future.get();
-            returnResult(ctx, rpcResponse, nettyId);
+            future.whenComplete((rpcResponse, throwable) -> {
+                returnResult(ctx, rpcResponse, nettyId);
+            });
         }
         return true;
     }

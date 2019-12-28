@@ -53,12 +53,6 @@ public class NettySender implements RpcSender {
         this.dataSerialization = clientContext.getDataSerialization();
     }
 
-    /**
-     * 用于控制速率使用。
-     */
-    private final Semaphore permit = new Semaphore(Runtime.getRuntime().availableProcessors() * 4);
-
-
     @Override
     public Object syncSend(RpcRequest rpcRequest) throws Exception {
         CompletableFuture<Object> future = asyncSend(rpcRequest);
@@ -78,19 +72,25 @@ public class NettySender implements RpcSender {
         CompletableFuture<Object> completableFuture = new CompletableFuture<>();
 
         Channel channel = getChannel();
+        ChannelFuture channelFuture;
 
-        ChannelFuture channelFuture = channel.write(byteBuf);
-        permit.acquire();
+        cache.put(rpcId, completableFuture);
+
+        if (channel.isWritable()) {
+            channelFuture = channel.writeAndFlush(byteBuf);
+        } else {
+            channelFuture = channel.writeAndFlush(byteBuf).sync();
+        }
         channelFuture.addListener((ChannelFutureListener) future -> {
-            permit.release();
             if (future.isSuccess()) {
-                cache.put(rpcId, completableFuture);
+                //System.out.println("put" + rpcId);
             } else {
+                cache.invalidate(rpcId);
                 completableFuture.completeExceptionally(new RemoteCallException("Rpc failed to write messages."));
             }
         });
         //channelFuture.sync();
-        channel.flush();
+        //channel.();
         return completableFuture;
     }
 

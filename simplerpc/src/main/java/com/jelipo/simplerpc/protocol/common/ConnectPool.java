@@ -33,26 +33,26 @@ public class ConnectPool<T> {
     }
 
     public void newConnect() {
-        CompletableFuture<Connect<T>> connectCompletableFuture = connectStarter.creatConnect();
-        connectCompletableFuture.whenComplete((connect, throwable) -> {
+        CompletableFuture<BaseConnect<T>> connectCompletableFuture = connectStarter.creatConnect();
+        connectCompletableFuture.whenComplete((baseConnect, throwable) -> {
             if (throwable == null) {
-                innerConnectPool.addConnect(connect);
+                innerConnectPool.addConnect(baseConnect);
             } else {
                 // TODO 尝试重新连接
             }
         });
     }
 
-    private void removeConnect(Connect<T> connect) {
-        innerConnectPool.remove(connect);
-        connect.destory();
+    private void removeConnect(BaseConnect<T> baseConnect) {
+        innerConnectPool.remove(baseConnect);
+        baseConnect.destory();
     }
 
 
     /**
-     * 获取随机的 {@link Connect}
+     * 获取随机的 {@link BaseConnect}
      */
-    public Connect<T> getRandomConnect() {
+    public BaseConnect<T> getRandomConnect() {
         return innerConnectPool.getRandomConnect();
     }
 
@@ -62,23 +62,23 @@ public class ConnectPool<T> {
      */
     private class InnerConnectPool {
 
-        private CopyOnWriteArrayList<Connect<T>> connectList = new CopyOnWriteArrayList<>();
+        private CopyOnWriteArrayList<BaseConnect<T>> baseConnectList = new CopyOnWriteArrayList<>();
 
 
-        private Connect<T> getRandomConnect() {
-            int size = connectList.size();
+        private BaseConnect<T> getRandomConnect() {
+            int size = baseConnectList.size();
             if (size == 0) {
                 return null;
             }
-            return connectList.get(random.nextInt(connectList.size()));
+            return baseConnectList.get(random.nextInt(baseConnectList.size()));
         }
 
-        private void addConnect(Connect<T> connect) {
-            connectList.add(connect);
+        private void addConnect(BaseConnect<T> baseConnect) {
+            baseConnectList.add(baseConnect);
         }
 
-        private void remove(Connect<T> connect) {
-            connectList.remove(connect);
+        private void remove(BaseConnect<T> baseConnect) {
+            baseConnectList.remove(baseConnect);
         }
     }
 

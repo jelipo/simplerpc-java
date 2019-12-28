@@ -7,6 +7,7 @@ import com.jelipo.simplerpc.protocol.serialization.DataSerialization;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.pool.SimpleChannelPool;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
@@ -81,6 +82,8 @@ public class NettyClient implements RpcClientInterface {
             }
         }
         nettySender = new NettySender(clientContext, channelList);
+
+
     }
 
     /**
@@ -89,6 +92,7 @@ public class NettyClient implements RpcClientInterface {
      * @param retryNum 重试次数，根据已经重试的次数判断是否是需要继续重试。
      */
     private Channel start(int retryNum) throws InterruptedException {
+
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         Bootstrap bootstrap = new Bootstrap();
         bootstrap.group(workerGroup)

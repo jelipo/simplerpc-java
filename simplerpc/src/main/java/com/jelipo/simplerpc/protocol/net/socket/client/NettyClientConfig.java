@@ -19,13 +19,13 @@ public class NettyClientConfig extends ClientConfig {
     /**
      * Netty单次发送/接收 最大的字节数。
      */
-    private int nettyMaxFrameLength = 1024 * 1024;
+    private int nettyMaxFrameLength = 1024;
 
     /**
      * 用于Netty通讯包的 头部长度。
      * 只允许数值为 1, 2, 3, 4, 8 。
      */
-    private int lengthFieldLength = 4;
+    private int lengthFieldLength = 3;
 
 
 }

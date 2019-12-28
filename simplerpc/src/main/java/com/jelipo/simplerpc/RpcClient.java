@@ -99,7 +99,7 @@ public class RpcClient {
         NettyClientConfig config = new NettyClientConfig();
         config.setHost(host);
         config.setPort(port);
-        config.setLengthFieldLength(4);
+        config.setLengthFieldLength(3);
         config.setNettyMaxFrameLength(1024 * 1024);
         config.setRetryTimes(5);
         return new NettyClient(config, dataSerialization);

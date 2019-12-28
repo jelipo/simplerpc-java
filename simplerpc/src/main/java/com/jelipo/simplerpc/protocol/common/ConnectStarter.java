@@ -8,6 +8,6 @@ import java.util.concurrent.CompletableFuture;
  */
 public interface ConnectStarter<T> {
 
-    CompletableFuture<Connect<T>> creatConnect();
+    CompletableFuture<BaseConnect<T>> creatConnect();
 
 }

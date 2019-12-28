@@ -59,8 +59,9 @@ public class NettyRpcServer extends AbstractRpcServer {
     }
 
     private void nettyChannelInit(SocketChannel ch) throws Exception {
-        LengthFieldBasedFrameDecoder decoder = new LengthFieldBasedFrameDecoder(nettyMaxFrameLength, 0, 4, 0, 4);
-        LengthFieldPrepender prepender = new LengthFieldPrepender(4);
+        int length = 3;
+        LengthFieldBasedFrameDecoder decoder = new LengthFieldBasedFrameDecoder(nettyMaxFrameLength, 0, length, 0, length);
+        LengthFieldPrepender prepender = new LengthFieldPrepender(length);
         ch.pipeline().addLast(decoder, prepender);
         IdleStateHandler idleStateHandler = new IdleStateHandler(heartBeatWaitTimeSeconds, 0, 0);
         ch.pipeline().addLast(idleStateHandler);

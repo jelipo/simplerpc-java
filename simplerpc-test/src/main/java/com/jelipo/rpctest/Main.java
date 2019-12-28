@@ -14,16 +14,16 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
 
-        String host = "192.168.100.254";
+        //String host = "192.168.100.254";
 
-        //String host = "localhost";
+        String host = "localhost";
         //设置端口
         int port = 18080;
         Main main = new Main();
 
 
         main.startServer(port);
-        Thread.sleep(99999999);
+        //Thread.sleep(99999999);
 
         main.testRpc(host, port, main);
 
@@ -84,7 +84,7 @@ public class Main {
         AtomicInteger atomicInteger = new AtomicInteger(0);
         for (int i = 0; i < num; i++) {
             //异步调用RPC方法
-            CompletableFuture<People> completableFutureResult = proxyInterfaceImpl.getUserDataAsysn("老王,35");
+            CompletableFuture<People> completableFutureResult = proxyInterfaceImpl.getUserDataAsysn("1,35");
             completableFutureResult.whenComplete((people1, throwable) -> {
                 int i1 = atomicInteger.addAndGet(1);
                 //System.out.println(Thread.currentThread().getName());
