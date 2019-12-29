@@ -3,14 +3,14 @@
 一个由Java编写的RPC项目，使用简单，支持同步以及异步调用。<br>
 程序使用Netty作为通讯基础组件，支持可替换序列化组件（暂时支持Kryo）。<br>
 ## Build
-本程序在 JDK8(Oracle JDK 8 build 1.8.0_211-b12) 平台编写和测试，使用Gradle Wrapper构建。
+本程序在 JDK8(Oracle JDK 8 build 1.8.0_231-b11) 平台编写和测试，使用默认Gradle Wrapper构建。
 ```bash
 ./gradlew simplerpc:clean simplerpc:jar
 ````
 ## How to use 
 ###### 演示文件
 ```
---com.Jelipo.test 
+--com.jelipo.test
 ----Main.java 
 ----People.java
 ----ProxyInterface.java
