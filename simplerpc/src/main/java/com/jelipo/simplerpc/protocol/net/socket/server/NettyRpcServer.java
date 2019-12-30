@@ -37,13 +37,13 @@ public class NettyRpcServer extends AbstractRpcServer {
 
     public NettyRpcServer(ServerConfig config, ProxyServerCore proxyServerCore, DataSerialization dataSerialization) {
         super(config, proxyServerCore, dataSerialization);
-
     }
 
     @Override
     public void start() throws Exception {
-        NioEventLoopGroup bossGroup = new NioEventLoopGroup(6);
-        NioEventLoopGroup workerGroup = new NioEventLoopGroup(10);
+        //NioEventLoopGroup group = new NioEventLoopGroup(6);
+        NioEventLoopGroup bossGroup = new NioEventLoopGroup(2);
+        NioEventLoopGroup workerGroup = new NioEventLoopGroup();
         ServerBootstrap serverBootstrap = new ServerBootstrap();
         serverBootstrap.group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
@@ -73,6 +73,5 @@ public class NettyRpcServer extends AbstractRpcServer {
 
         ch.pipeline().addLast(new NettyServerMainHandler(workerList, nettyRpcWorker, nettyHeartBeatWorker, dataSerialization));
     }
-
 
 }

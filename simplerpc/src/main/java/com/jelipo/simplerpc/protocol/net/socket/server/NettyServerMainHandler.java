@@ -1,7 +1,6 @@
 package com.jelipo.simplerpc.protocol.net.socket.server;
 
 import com.jelipo.simplerpc.pojo.ExceptionType;
-import com.jelipo.simplerpc.pojo.ExchangeRequest;
 import com.jelipo.simplerpc.pojo.ProtocolMeta;
 import com.jelipo.simplerpc.pojo.RpcRequest;
 import com.jelipo.simplerpc.protocol.net.CommonMetaUtils;
@@ -24,14 +23,23 @@ import java.util.List;
 @ChannelHandler.Sharable
 public class NettyServerMainHandler extends ChannelInboundHandlerAdapter {
 
-
     private final List<NettyWorker> workerList;
+
     private final NettyExceptionWorker exceptionWorker;
 
     private final DataSerialization dataSerialization;
 
     private final NettyHeartBeatWorker nettyHeartBeatWorker;
 
+    /**
+     * 构建一个Netty主处理器
+     *
+     * @param workerList           worker 的List。如有消息传过来，会按照List顺序交由worker判断是否处理，
+     *                             如遇到某个worker可以处理，会返回true。
+     * @param exceptionWorker      异常worker
+     * @param nettyHeartBeatWorker
+     * @param dataSerialization
+     */
     public NettyServerMainHandler(List<NettyWorker> workerList,
                                   NettyExceptionWorker exceptionWorker,
                                   NettyHeartBeatWorker nettyHeartBeatWorker,
@@ -67,7 +75,7 @@ public class NettyServerMainHandler extends ChannelInboundHandlerAdapter {
                     break;
                 }
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             e.printStackTrace();
             exceptionWorker.exception(ctx, ExceptionType.RPC_INNER_EXCEPTION);
         } finally {
@@ -83,4 +91,9 @@ public class NettyServerMainHandler extends ChannelInboundHandlerAdapter {
         exceptionWorker.exception(ctx, ExceptionType.RPC_INNER_EXCEPTION);
     }
 
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        System.out.println("连接断开");
+        super.channelInactive(ctx);
+    }
 }

@@ -14,4 +14,8 @@ public abstract class BaseConnect<T> {
 
     public abstract void destory();
 
+    public T get() {
+        return nativeConnect;
+    }
+
 }
