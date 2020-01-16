@@ -1,7 +1,7 @@
 # simplerpc-java
 ## 介绍
 一个由Java编写的RPC项目，使用简单，支持同步以及异步调用。<br>
-程序使用Netty作为通讯基础组件，支持可替换序列化组件（暂时支持Kryo）。<br>
+程序使用Netty作为通讯基础组件，支持可替换序列化组件(暂时支持Kryo)。<br>
 ## Build
 本程序在 JDK8(Oracle JDK 8 build 1.8.0_231-b11) 平台编写和测试，使用默认Gradle Wrapper构建。
 ```bash
@@ -66,14 +66,14 @@ public class Main {
         RpcServer rpcServer = new RpcServer()
                 .port(port)
                 //扫描被注解的类的路径
-                .classesPath("com.Jelipo.test")
+                .classesPath("com.jelipo.test")
                 .start();
 
         //启动RPC客户端
         RpcClient rpcClient = new RpcClient()
                 //连接RPC服务
                 .hostAndPort("localhost", port)
-                .classesPath("com.Jelipo.test")
+                .classesPath("com.jelipo.test")
                 .connect();
         
         //从client中获取RPC接口的代理类。
@@ -109,7 +109,7 @@ public class Main {
 Sync: Name:小丽. Age:18
 Async: Name 老王 Age 35
 null
-java.util.concurrent.CompletionException: com.Jelipo.simplerpc.exception.RemoteCallException: An exception occurred when calling a remote method.
+java.util.concurrent.CompletionException: com.jelipo.simplerpc.exception.RemoteCallException: An exception occurred when calling a remote method.
 	at java.util.concurrent.CompletableFuture.encodeThrowable(CompletableFuture.java:292)
 	at java.util.concurrent.CompletableFuture.completeThrowable(CompletableFuture.java:308)
 	at java.util.concurrent.CompletableFuture.uniWhenComplete(CompletableFuture.java:769)
