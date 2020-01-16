@@ -1,17 +1,20 @@
 package com.jelipo.simplerpc;
 
-import com.jelipo.simplerpc.protocol.net.socket.client.NettyClient;
-import com.jelipo.simplerpc.protocol.net.socket.client.NettyClientConfig;
+
 import com.jelipo.simplerpc.annotations.Rpc;
 import com.jelipo.simplerpc.core.client.RpcClientFactory;
 import com.jelipo.simplerpc.core.client.RpcClientInterface;
+import com.jelipo.simplerpc.core.client.RpcInterfaceManager;
 import com.jelipo.simplerpc.core.client.RpcSender;
+import com.jelipo.simplerpc.protocol.net.socket.client.NettyClient;
+import com.jelipo.simplerpc.protocol.net.socket.client.NettyClientConfig;
 import com.jelipo.simplerpc.protocol.serialization.DataSerialization;
 import com.jelipo.simplerpc.protocol.serialization.kryo.KryoDataSerialization;
 import org.reflections.Reflections;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -23,11 +26,13 @@ import java.util.stream.Collectors;
  */
 public class RpcClient {
 
+    private static final Logger logger = LoggerFactory.getLogger(RpcClient.class);
+
     private String host;
 
     private int port;
 
-    private Set<Class> rpcInterfaceList = new HashSet<>();
+    private RpcInterfaceManager rpcInterfaceManager = new RpcInterfaceManager();
 
     private RpcClientFactory rpcClientFactory;
 
@@ -42,7 +47,7 @@ public class RpcClient {
     public RpcClient classesPath(String... paths) {
         for (String path : paths) {
             Set<Class<?>> rpcClasses = findRpcClasses(path, Rpc.class);
-            rpcInterfaceList.addAll(rpcClasses);
+            rpcClasses.forEach(aClass -> rpcInterfaceManager.add(aClass));
         }
         return this;
     }
@@ -56,7 +61,7 @@ public class RpcClient {
         DataSerialization dataSerialization = creatDataSerialization();
         RpcClientInterface rpcClient = creatRpcClient(dataSerialization);
         RpcSender sender = rpcClient.getNettySender();
-        this.rpcClientFactory = new RpcClientFactory(sender, rpcInterfaceList);
+        this.rpcClientFactory = new RpcClientFactory(sender, rpcInterfaceManager);
         this.sender = sender;
         return this;
     }
@@ -104,4 +109,6 @@ public class RpcClient {
         config.setRetryTimes(5);
         return new NettyClient(config, dataSerialization);
     }
+
+
 }

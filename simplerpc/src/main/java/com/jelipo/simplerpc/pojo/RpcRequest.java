@@ -1,8 +1,6 @@
 package com.jelipo.simplerpc.pojo;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +9,8 @@ import java.util.List;
  * @author Jelipo
  * @date 2019/5/21 15:29
  */
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class RpcRequest {
