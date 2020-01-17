@@ -9,4 +9,4 @@ jobs:
 
     steps:
     - name: Build with Gradle
-      run: /bin/bash gradlew simplerpc:clean simplerpc:jar
+      run: pwd && ls && chmod 777 gradlew && ./gradlew simplerpc:clean simplerpc:jar
