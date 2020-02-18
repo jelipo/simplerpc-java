@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class NettySender implements RpcSender {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private static final Logger logger = LoggerFactory.getLogger(NettySender.class);
 
     /**
      * 每个NettySender实体都有一个随机生成的id，作为CLientId使用。

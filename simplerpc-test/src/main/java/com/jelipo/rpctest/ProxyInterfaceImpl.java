@@ -2,7 +2,11 @@ package com.jelipo.rpctest;
 
 import com.jelipo.simplerpc.annotations.RpcImpl;
 
+import java.time.Duration;
+import java.time.temporal.TemporalUnit;
+import java.util.Calendar;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -23,6 +27,7 @@ public class ProxyInterfaceImpl implements ProxyInterface {
 
     @Override
     public CompletableFuture<People> getUserDataAsysn(String info) {
+        TimeUnit hours = TimeUnit.HOURS;
         return CompletableFuture.supplyAsync(() -> {
             String[] split = info.split(",");
             return new People(split[0], Integer.parseInt(split[1]), null);

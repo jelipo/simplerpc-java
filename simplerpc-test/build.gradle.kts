@@ -16,7 +16,7 @@ tasks {
     }
 }
 
-val lombokVersion = "1.18.10"
+val lombokVersion = "1.18.12"
 
 dependencies {
     implementation("com.google.guava:guava:28.2-jre")

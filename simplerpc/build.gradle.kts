@@ -5,14 +5,14 @@ plugins {
 
 version = "0.0.2"
 
-val lombokVersion = "1.18.10"
+val lombokVersion = "1.18.12"
 
 dependencies {
     implementation("ch.qos.logback:logback-classic:1.2.3")
     implementation("com.google.guava:guava:28.2-jre")
     implementation("cglib:cglib:3.3.0")
     testCompileOnly("org.projectlombok:lombok:$lombokVersion")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.5.2")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.6.0")
     //用于扫描注解
     implementation("org.reflections:reflections:0.9.12")
     //序列化

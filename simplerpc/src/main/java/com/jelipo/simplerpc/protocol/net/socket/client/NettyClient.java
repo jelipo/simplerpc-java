@@ -3,6 +3,7 @@ package com.jelipo.simplerpc.protocol.net.socket.client;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.jelipo.simplerpc.core.client.RpcClientInterface;
+import com.jelipo.simplerpc.enums.NetProtocolType;
 import com.jelipo.simplerpc.protocol.serialization.DataSerialization;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
@@ -81,6 +82,7 @@ public class NettyClient implements RpcClientInterface {
                 logger.warn("有连接不可用");
             }
         }
+        //NetProtocolType.DEFAULT.get().newInstance()
         nettySender = new NettySender(clientContext, channelList);
 
 
