@@ -1,14 +1,12 @@
 package com.jelipo.simplerpc.protocol.net.socket.client;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.jelipo.simplerpc.core.client.RpcClientInterface;
-import com.jelipo.simplerpc.enums.NetProtocolType;
+import com.jelipo.simplerpc.protocol.common.cache.GuavaIdFutureCache;
+import com.jelipo.simplerpc.protocol.common.cache.IdFutureCache;
+import com.jelipo.simplerpc.protocol.net.RpcClientInterface;
 import com.jelipo.simplerpc.protocol.serialization.DataSerialization;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.pool.SimpleChannelPool;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
@@ -19,8 +17,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author Jelipo
@@ -37,22 +33,12 @@ public class NettyClient implements RpcClientInterface {
      */
     private DataSerialization dataSerialization;
 
-    /**
-     * 缓存的时间，单位 秒。
-     */
-    private int cacheTime = 300;
 
     private NettyClientContext clientContext;
 
     private NettySender nettySender;
 
-    /**
-     * 用于存放 释放锁对象 的缓存。
-     */
-    private Cache<Integer, CompletableFuture<Object>> cache = CacheBuilder.newBuilder()
-            .maximumSize(Integer.MAX_VALUE)
-            .expireAfterWrite(cacheTime, TimeUnit.SECONDS)
-            .build();
+    private IdFutureCache idFutureCache = new GuavaIdFutureCache(300);
 
     private int connectNum = 6;
 
@@ -70,7 +56,7 @@ public class NettyClient implements RpcClientInterface {
     }
 
     private void buildDefaultSender() throws InterruptedException {
-        this.clientContext = new NettyClientContext(dataSerialization, config, cache);
+        this.clientContext = new NettyClientContext(dataSerialization, config, idFutureCache);
 
         List<Channel> channelList = new ArrayList<>(connectNum);
 

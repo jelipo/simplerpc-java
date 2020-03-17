@@ -1,10 +1,10 @@
 package com.jelipo.simplerpc.protocol.net.socket.client;
 
-import com.google.common.cache.Cache;
 import com.google.common.primitives.Shorts;
 import com.jelipo.simplerpc.core.client.RpcSender;
 import com.jelipo.simplerpc.exception.RemoteCallException;
 import com.jelipo.simplerpc.pojo.RpcRequest;
+import com.jelipo.simplerpc.protocol.common.cache.IdFutureCache;
 import com.jelipo.simplerpc.protocol.net.CommonMetaUtils;
 import com.jelipo.simplerpc.protocol.serialization.DataSerialization;
 import com.jelipo.simplerpc.util.NettyIdUtils;
@@ -42,21 +42,20 @@ public class NettySender implements RpcSender {
      */
     private List<Channel> channelList;
 
-    private Cache<Integer, CompletableFuture<Object>> cache;
+    private IdFutureCache idFutureCache;
 
     private DataSerialization dataSerialization;
 
     public NettySender(NettyClientContext clientContext, List<Channel> channelList) {
         this.channelList = channelList;
-        this.cache = clientContext.getCache();
+        this.idFutureCache = clientContext.getIdFutureCache();
         this.dataSerialization = clientContext.getDataSerialization();
     }
 
     @Override
     public Object syncSend(RpcRequest rpcRequest) throws Exception {
         CompletableFuture<Object> future = asyncSend(rpcRequest);
-        Object result = future.get(10, TimeUnit.SECONDS);
-        return result;
+        return future.get(10, TimeUnit.SECONDS);
     }
 
     @Override
@@ -72,8 +71,8 @@ public class NettySender implements RpcSender {
 
         Channel channel = getChannel();
         ChannelFuture channelFuture;
-
-        cache.put(rpcId, completableFuture);
+        //将Future放入缓存
+        idFutureCache.putCache(rpcId, completableFuture);
 
         if (channel.isWritable()) {
             channelFuture = channel.writeAndFlush(byteBuf);
@@ -82,15 +81,16 @@ public class NettySender implements RpcSender {
         }
         channelFuture.addListener((ChannelFutureListener) future -> {
             if (future.isSuccess()) {
-                //System.out.println("put" + rpcId);
+                success();
             } else {
-                cache.invalidate(rpcId);
+                idFutureCache.delete(rpcId);
                 completableFuture.completeExceptionally(new RemoteCallException("Rpc failed to write messages."));
             }
         });
-        //channelFuture.sync();
-        //channel.();
         return completableFuture;
+    }
+
+    private void success() {
     }
 
 

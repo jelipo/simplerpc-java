@@ -26,13 +26,12 @@ public class Receiver {
      *
      * @param methodHashCode Interface的方法的识别码。
      * @param paramList      参数List。
-     * @return
      */
     RpcResponse receive(long methodHashCode, ArrayList<Object> paramList) {
         Method method = rpcServerFactory.getImplMethodByInterfaceMethodHashcode(methodHashCode);
         //没有相应的方法，直接返回。
         if (method == null) {
-            return new RpcResponse(null, ExceptionType.NO_SUCHMETHOD_EXCEPTION);
+            return new RpcResponse(null, ExceptionType.NO_SUCHMETHOD_EXCEPTION, null);
         }
         Object obj = rpcServerFactory.getImplObjectByInterfaceClass(method.getDeclaringClass());
         RpcResponse rpcResponse = new RpcResponse();
@@ -56,29 +55,29 @@ public class Receiver {
         Method method = rpcServerFactory.getImplMethodByInterfaceMethodHashcode(methodHashCode);
         //没有相应的方法，直接对传递过来的future执行完成。
         if (method == null) {
-            future.complete(new RpcResponse(null, ExceptionType.NO_SUCHMETHOD_EXCEPTION));
+            future.complete(new RpcResponse(null, ExceptionType.NO_SUCHMETHOD_EXCEPTION, null));
             return;
         }
         Object obj = rpcServerFactory.getImplObjectByInterfaceClass(method.getDeclaringClass());
         RpcResponse rpcResponse = new RpcResponse();
-        CompletableFuture futureResult;
+        CompletableFuture<?> futureResult;
         try {
-            futureResult = (CompletableFuture) method.invoke(obj, paramList.toArray());
+            futureResult = (CompletableFuture<?>) method.invoke(obj, paramList.toArray());
         } catch (IllegalAccessException | InvocationTargetException e) {
             rpcResponse.setException(ExceptionType.RPC_METHOD_EXCEPTION);
+            rpcResponse.setExceptionMessage(e.getMessage());
             future.complete(rpcResponse);
             return;
         }
         futureResult.whenComplete((BiConsumer<Object, Throwable>) (result, throwable) -> {
             if (throwable != null) {
                 rpcResponse.setException(ExceptionType.RPC_METHOD_EXCEPTION);
-                future.complete(rpcResponse);
+                rpcResponse.setExceptionMessage(throwable.getMessage());
             } else {
                 rpcResponse.setException(ExceptionType.NO_EXCEPTION);
                 rpcResponse.setResult(result);
-                future.complete(rpcResponse);
             }
-
+            future.complete(rpcResponse);
         });
     }
 }

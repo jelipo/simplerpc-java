@@ -1,12 +1,10 @@
 package com.jelipo.simplerpc.protocol.net.socket.client;
 
-import com.google.common.cache.Cache;
 import com.jelipo.simplerpc.pojo.client.ClientConfig;
+import com.jelipo.simplerpc.protocol.common.cache.IdFutureCache;
 import com.jelipo.simplerpc.protocol.serialization.DataSerialization;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-
-import java.util.concurrent.CompletableFuture;
 
 /**
  * @author Jelipo
@@ -20,6 +18,6 @@ public class NettyClientContext {
 
     private ClientConfig clientConfig;
 
-    private Cache<Integer, CompletableFuture<Object>> cache;
+    private IdFutureCache idFutureCache;
 
 }

@@ -1,5 +1,6 @@
-package com.jelipo.simplerpc.core.server;
+package com.jelipo.simplerpc.protocol.net;
 
+import com.jelipo.simplerpc.core.server.ProxyServerCore;
 import com.jelipo.simplerpc.pojo.ServerConfig;
 import com.jelipo.simplerpc.protocol.serialization.DataSerialization;
 

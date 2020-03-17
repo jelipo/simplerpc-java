@@ -5,18 +5,12 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.util.Pool;
 import com.jelipo.simplerpc.exception.DeserializationException;
-import com.jelipo.simplerpc.pojo.ExchangeRequest;
-import com.jelipo.simplerpc.pojo.ExchangeResponse;
+import com.jelipo.simplerpc.exception.SerializationException;
 import com.jelipo.simplerpc.pojo.RpcRequest;
 import com.jelipo.simplerpc.pojo.RpcResponse;
-import com.jelipo.simplerpc.exception.SerializationException;
 import com.jelipo.simplerpc.protocol.serialization.DataSerialization;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
 
 /**
  * 使用Kryo作为序列化和反序列化的主要类。
@@ -37,17 +31,17 @@ public class KryoDataSerialization implements DataSerialization {
         protected Kryo create() {
             Kryo kryo = new Kryo();
             kryo.setRegistrationRequired(false);
-            kryo.setReferences(false);
-            //提前注册会用到的类。
-            kryo.register(HashSet.class);
-            kryo.register(HashMap.class);
-            kryo.register(LinkedList.class);
-            kryo.register(ArrayList.class);
-            //以下是内部必须要用到的。
-            kryo.register(RpcRequest.class);
-            kryo.register(ExchangeRequest.class);
-            kryo.register(RpcResponse.class);
-            kryo.register(ExchangeResponse.class);
+//            kryo.setReferences(false);
+//            //提前注册会用到的类。
+//            kryo.register(HashSet.class);
+//            kryo.register(HashMap.class);
+//            kryo.register(LinkedList.class);
+//            kryo.register(ArrayList.class);
+//            //以下是内部必须要用到的。
+//            kryo.register(RpcRequest.class);
+//            kryo.register(ExchangeRequest.class);
+//            kryo.register(RpcResponse.class);
+//            kryo.register(ExchangeResponse.class);
             return kryo;
         }
     };
@@ -58,8 +52,6 @@ public class KryoDataSerialization implements DataSerialization {
      * 因为Kroy会用到buffer缓存，为了重复使用,请设置一个合理的buffer最大值。
      * 此Buffer会常驻内存，且为多个，一般低负载情况下，buffer的总大小会小于等于 CPU逻辑核心数*2*buffersize，
      * 但是到高负载情况下，会高于此值。
-     *
-     * @param maxBufferSize
      */
     public KryoDataSerialization(int maxBufferSize) {
         this.outputPool = new Pool<Output>(true, false) {
@@ -84,9 +76,9 @@ public class KryoDataSerialization implements DataSerialization {
     /**
      * 内部通用的序列化方法。
      *
-     * @param object
-     * @return
-     * @throws SerializationException
+     * @param object 需要被序列化的对象
+     * @return 序列化完成的Byte数组
+     * @throws SerializationException 序列化异常
      */
     private byte[] commonSerialize(Object object) throws SerializationException {
         Kryo kryo = kryoPool.obtain();

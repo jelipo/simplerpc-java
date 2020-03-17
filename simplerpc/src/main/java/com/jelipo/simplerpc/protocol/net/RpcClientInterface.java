@@ -1,4 +1,6 @@
-package com.jelipo.simplerpc.core.client;
+package com.jelipo.simplerpc.protocol.net;
+
+import com.jelipo.simplerpc.core.client.RpcSender;
 
 /**
  * @author Jelipo
@@ -7,8 +9,7 @@ package com.jelipo.simplerpc.core.client;
 public interface RpcClientInterface {
 
     /**
-     *
-     * @return
+     * 获取NettySender
      */
     RpcSender getNettySender();
 }

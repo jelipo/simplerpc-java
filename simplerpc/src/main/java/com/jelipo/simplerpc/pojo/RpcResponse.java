@@ -16,4 +16,6 @@ public class RpcResponse {
 
     private int exception = ExceptionType.NO_EXCEPTION;
 
+    private String exceptionMessage;
+
 }

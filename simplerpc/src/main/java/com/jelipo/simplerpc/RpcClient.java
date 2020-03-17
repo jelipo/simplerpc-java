@@ -3,9 +3,9 @@ package com.jelipo.simplerpc;
 
 import com.jelipo.simplerpc.annotations.Rpc;
 import com.jelipo.simplerpc.core.client.RpcClientFactory;
-import com.jelipo.simplerpc.core.client.RpcClientInterface;
 import com.jelipo.simplerpc.core.client.RpcInterfaceManager;
 import com.jelipo.simplerpc.core.client.RpcSender;
+import com.jelipo.simplerpc.protocol.net.RpcClientInterface;
 import com.jelipo.simplerpc.protocol.net.socket.client.NettyClient;
 import com.jelipo.simplerpc.protocol.net.socket.client.NettyClientConfig;
 import com.jelipo.simplerpc.protocol.serialization.DataSerialization;
@@ -54,8 +54,6 @@ public class RpcClient {
 
     /**
      * 连接Rpc Server，同步操作，会等待完成连接完成。
-     *
-     * @throws Exception
      */
     public RpcClient connect() throws Exception {
         DataSerialization dataSerialization = creatDataSerialization();

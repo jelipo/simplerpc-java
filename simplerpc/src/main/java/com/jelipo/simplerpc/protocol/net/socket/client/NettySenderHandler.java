@@ -1,12 +1,10 @@
 package com.jelipo.simplerpc.protocol.net.socket.client;
 
-import com.google.common.cache.Cache;
 import com.google.common.primitives.Shorts;
-import com.jelipo.simplerpc.exception.RemoteCallException;
-import com.jelipo.simplerpc.exception.SerializationException;
-import com.jelipo.simplerpc.pojo.ExceptionType;
 import com.jelipo.simplerpc.pojo.ProtocolMeta;
 import com.jelipo.simplerpc.pojo.RpcResponse;
+import com.jelipo.simplerpc.protocol.common.RpcExceptionFilter;
+import com.jelipo.simplerpc.protocol.common.cache.IdFutureCache;
 import com.jelipo.simplerpc.protocol.net.CommonMetaUtils;
 import com.jelipo.simplerpc.protocol.serialization.DataSerialization;
 import io.netty.buffer.ByteBuf;
@@ -31,16 +29,17 @@ import java.util.concurrent.CompletableFuture;
 class NettySenderHandler extends ChannelInboundHandlerAdapter {
 
     private DataSerialization dataSerialization;
-    private Cache<Integer, CompletableFuture<Object>> cache;
+
+    private IdFutureCache idFutureCache;
 
     NettySenderHandler(NettyClientContext clientContext) {
         this.dataSerialization = clientContext.getDataSerialization();
-        this.cache = clientContext.getCache();
+        this.idFutureCache = clientContext.getIdFutureCache();
     }
 
     private ByteBuf heartBeatByteBuf;
 
-    private ByteBuf getHeartBeatByteBuf() throws SerializationException {
+    private ByteBuf getHeartBeatByteBuf() {
         if (heartBeatByteBuf == null) {
             byte[] metaBytes = CommonMetaUtils.toBytes(true, 0, "", null);
             byte[] bytes = Shorts.toByteArray((short) metaBytes.length);
@@ -52,8 +51,6 @@ class NettySenderHandler extends ChannelInboundHandlerAdapter {
 
     /**
      * 在此handler中，此方法主要用于处理发送心跳。
-     *
-     * @throws Exception
      */
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
@@ -86,36 +83,19 @@ class NettySenderHandler extends ChannelInboundHandlerAdapter {
                 System.out.println("有异常。");
                 return;
             }
-
-            CompletableFuture<Object> future = cache.getIfPresent(id);
-            cache.invalidate(id);
+            CompletableFuture<Object> future = idFutureCache.getAndDelete(id);
             if (future == null) {
                 System.out.println("找不到id相对应的缓存，可能已经超时/缓存设置太小。id:" + id);
                 return;
             }
             int exceptionCode = rpcResponse.getException();
-            switch (exceptionCode) {
-                case ExceptionType.NO_EXCEPTION:
-                    future.complete(rpcResponse.getResult());
-                    return;
-                case ExceptionType.RPC_METHOD_EXCEPTION:
-                    future.completeExceptionally(new RemoteCallException("An exception occurred when calling a remote method."));
-                    return;
-                case ExceptionType.RPC_INNER_EXCEPTION:
-                    future.completeExceptionally(new RemoteCallException("Abnormality in RPC.Pelease check network / object size / supported serialized objects "));
-                    return;
-                case ExceptionType.NO_SUCHMETHOD_EXCEPTION:
-                    future.completeExceptionally(new NoSuchMethodException("No such method in remote server."));
-                    return;
-                case ExceptionType.SERIALIZED_EXCEPTION:
-                    future.completeExceptionally(new RemoteCallException("Abnormality in RPC. Serialized exception."));
-                    return;
-                case ExceptionType.NETWORK_TRANSMISSION_EXCEPTION:
-                    future.completeExceptionally(new RemoteCallException("Abnormality in RPC. Exception occurred during netty transmission."));
-                    return;
-                default:
-                    future.completeExceptionally(new UnknownError("Unknow remote call exception code: " + rpcResponse.getException()));
+            Exception exception = RpcExceptionFilter.filter(exceptionCode);
+            //如有异常，则直接向 Future 中写入异常
+            if (exception != null) {
+                future.completeExceptionally(exception);
+                return;
             }
+            future.complete(rpcResponse.getResult());
         } finally {
             ReferenceCountUtil.release(msg);
         }

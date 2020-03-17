@@ -1,7 +1,7 @@
 package com.jelipo.simplerpc.protocol.net.socket.server;
 
 import com.google.common.collect.Lists;
-import com.jelipo.simplerpc.core.server.AbstractRpcServer;
+import com.jelipo.simplerpc.protocol.net.AbstractRpcServer;
 import com.jelipo.simplerpc.core.server.ProxyServerCore;
 import com.jelipo.simplerpc.pojo.ServerConfig;
 import com.jelipo.simplerpc.protocol.serialization.DataSerialization;
