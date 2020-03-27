@@ -56,53 +56,52 @@ public class ProxyInterfaceImpl implements ProxyInterface {
     }
 }
 ```
-###### Main.java 主要的测试类。
+###### Server端初始化
 ```java
-public class Main {
-    public static void main(String[] args) throws Exception {
-        //设置端口
-        int port = 18080;
-        //启动RPC服务器
-        RpcServer rpcServer = new RpcServer()
-                .port(port)
-                //扫描被注解的类的路径
-                .classesPath("com.jelipo.test")
-                .start();
+ //设置端口
+int port = 18080;
+//启动RPC服务器
+RpcServer rpcServer = new RpcServer()
+    .port(port)
+     //扫描被注解的类的路径
+    .classesPath("com.jelipo.test")
+    .start();
+```
 
-        //启动RPC客户端
-        RpcClient rpcClient = new RpcClient()
-                //连接RPC服务
-                .hostAndPort("localhost", port)
-                .classesPath("com.jelipo.test")
-                .connect();
-        
-        //从client中获取RPC接口的代理类。
-        ProxyInterface proxyInterfaceImpl = rpcClient.getRpcImpl(ProxyInterface.class);
+###### Client 端初始化
+```java
+//启动RPC客户端
+RpcClient rpcClient = new RpcClient()
+        //连接RPC服务
+        .hostAndPort("localhost", port)
+        .classesPath("com.jelipo.test")
+        .connect();
+```
+###### Client 端同步调用RPC方法
+```
+//从client中获取RPC接口的代理类。
+ProxyInterface proxyInterfaceImpl = rpcClient.getRpcImpl(ProxyInterface.class);
 
-        //同步调用RPC方法
-        People people = new People("小丽", 18);
-        //支持的参数和返回类型包括Java的基本类型、String、只包含基本类型(可嵌套)且有空构造方法的POJO类.
-        String result = proxyInterfaceImpl.getUserData(people);
-        System.out.println(result);
-
-        //异步调用RPC方法
-        CompletableFuture<People> completableFutureResult = proxyInterfaceImpl.getUserDataAsysn("老王,35");
-        completableFutureResult.whenComplete((people1, throwable) -> {
-            System.out.println("Async: Name " + people1.getName() + " Age " + people1.getAge());
-        });
-
-        //当异步调用远程方法，远程方法抛出异常时的处理。
-        CompletableFuture<People> exceptionResult = proxyInterfaceImpl.getUserDataAsysn("不知道老王几岁");
-        exceptionResult.whenComplete((people2, throwable) -> {
-            System.out.println(people2);
-        }).exceptionally(throwable -> {
-            throwable.printStackTrace();
-            return null;
-        });
-
-    }
-}
-
+People people = new People("小丽", 18);
+//支持的参数和返回类型包括Java的基本类型、String、只包含基本类型(可嵌套)且有空构造方法的POJO类.
+String result = proxyInterfaceImpl.getUserData(people);
+System.out.println(result);
+```
+###### Client 端异步调用RPC方法
+```java
+ProxyInterface proxyInterfaceImpl = rpcClient.getRpcImpl(ProxyInterface.class);
+CompletableFuture<People> completableFutureResult = proxyInterfaceImpl.getUserDataAsysn("老王,35");
+completableFutureResult.whenComplete((people1, throwable) -> {
+     System.out.println("Async: Name " + people1.getName() + " Age " + people1.getAge());
+});
+//当异步调用远程方法，远程方法抛出异常时的处理。
+CompletableFuture<People> exceptionResult = proxyInterfaceImpl.getUserDataAsysn("不知道老王几岁");
+exceptionResult.whenComplete((people2, throwable) -> {
+    System.out.println(people2);
+}).exceptionally(throwable -> {
+    throwable.printStackTrace();
+    return null;
+});
 ```
 ###### 输出结果
 ```bash 
