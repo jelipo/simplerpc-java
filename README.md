@@ -10,13 +10,13 @@
 ## How to use 
 ###### 演示文件
 ```
-com
+|-com
   |-jelipo
     |-test
-      |-Main.java 
-      |-People.java
-      |-ProxyInterface.java
-      |-ProxyInterfaceImpl.java
+      >Main.java 
+      >People.java
+      >ProxyInterface.java
+      >ProxyInterfaceImpl.java
 ```
 ###### People.java 普通的传输对象
 ```java
