@@ -8,7 +8,7 @@
 ./gradlew simplerpc:clean simplerpc:jar
 ````
 ## How to use 
-###### 演示文件
+##### 演示文件
 ```
 |-com
   |-jelipo
@@ -18,7 +18,7 @@
       > ProxyInterface.java
       > ProxyInterfaceImpl.java
 ```
-###### People.java 普通的传输对象
+##### People.java 普通的传输对象
 ```java
 public class People {
     private String name;
@@ -33,7 +33,7 @@ public class People {
     ...getter and setter...
 }
 ```
-###### ProxyInterface.java 接口
+##### ProxyInterface.java 接口
 ```java
 @Rpc //在RPC接口上添加@Rpc注解
 public interface ProxyInterface {
@@ -41,7 +41,7 @@ public interface ProxyInterface {
     CompletableFuture<People> getUserDataAsysn(String info);
 }
 ```
-###### ProxyInterfaceImpl.java 实现类
+##### ProxyInterfaceImpl.java 实现类
 ```java
 @RpcImpl //在实现类上添加@RpcImpl注解
 public class ProxyInterfaceImpl implements ProxyInterface {
@@ -58,7 +58,7 @@ public class ProxyInterfaceImpl implements ProxyInterface {
     }
 }
 ```
-###### Server端初始化
+##### Server端初始化
 ```java
  //设置端口
 int port = 18080;
@@ -70,7 +70,7 @@ RpcServer rpcServer = new RpcServer()
     .start();
 ```
 
-###### Client 端初始化
+##### Client 端初始化
 ```java
 //启动RPC客户端
 RpcClient rpcClient = new RpcClient()
@@ -79,7 +79,7 @@ RpcClient rpcClient = new RpcClient()
         .classesPath("com.jelipo.test")
         .connect();
 ```
-###### Client 端同步调用RPC方法
+##### Client 端同步调用RPC方法
 ```
 //从client中获取RPC接口的代理类。
 ProxyInterface proxyInterfaceImpl = rpcClient.getRpcImpl(ProxyInterface.class);
@@ -89,7 +89,7 @@ People people = new People("小丽", 18);
 String result = proxyInterfaceImpl.getUserData(people);
 System.out.println(result);
 ```
-###### Client 端异步调用RPC方法
+##### Client 端异步调用RPC方法
 ```java
 ProxyInterface proxyInterfaceImpl = rpcClient.getRpcImpl(ProxyInterface.class);
 CompletableFuture<People> completableFutureResult = proxyInterfaceImpl.getUserDataAsysn("老王,35");
@@ -105,3 +105,8 @@ exceptionResult.whenComplete((people2, throwable) -> {
     return null;
 });
 ```
+## 等待添加
+- 注册中心支持(暂时未定)
+- 更多的序列化支持(初步计划JSON和Hessian)
+- 更多的网络协议支持(为了网络兼容性使用HTTP)
+- 支持方法级别的Config注解配置(如超时设置、指定Server等)
