@@ -13,10 +13,10 @@
 |-com
   |-jelipo
     |-test
-      >Main.java 
-      >People.java
-      >ProxyInterface.java
-      >ProxyInterfaceImpl.java
+      > Main.java 
+      > People.java
+      > ProxyInterface.java
+      > ProxyInterfaceImpl.java
 ```
 ###### People.java 普通的传输对象
 ```java
@@ -104,15 +104,4 @@ exceptionResult.whenComplete((people2, throwable) -> {
     throwable.printStackTrace();
     return null;
 });
-```
-###### 输出结果
-```bash 
-Sync: Name:小丽. Age:18
-Async: Name 老王 Age 35
-null
-java.util.concurrent.CompletionException: com.jelipo.simplerpc.exception.RemoteCallException: An exception occurred when calling a remote method.
-	at java.util.concurrent.CompletableFuture.encodeThrowable(CompletableFuture.java:292)
-	at java.util.concurrent.CompletableFuture.completeThrowable(CompletableFuture.java:308)
-	at java.util.concurrent.CompletableFuture.uniWhenComplete(CompletableFuture.java:769)
-...省略...
 ```
