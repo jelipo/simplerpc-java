@@ -110,3 +110,4 @@ exceptionResult.whenComplete((people2, throwable) -> {
 - 更多的序列化支持(初步计划JSON和Hessian)
 - 更多的网络协议支持(为了网络兼容性使用HTTP)
 - 支持方法级别的Config注解配置(如超时设置、指定Server等)
+- 对于Netty的长连接使用多个连接保证稳定性
