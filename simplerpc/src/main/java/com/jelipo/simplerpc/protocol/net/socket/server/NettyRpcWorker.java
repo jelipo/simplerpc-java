@@ -87,7 +87,7 @@ public class NettyRpcWorker implements NettyWorker, NettyExceptionWorker {
     }
 
     @Override
-    public void exception(ChannelHandlerContext ctx, int exceptionType) {
-        returnResult(ctx, new RpcResponse(null, exceptionType), -1);
+    public void exception(ChannelHandlerContext ctx, int exceptionType, String exceptionMessage, Long rpcId) {
+        returnResult(ctx, new RpcResponse(null, exceptionType, exceptionMessage), -1);
     }
 }

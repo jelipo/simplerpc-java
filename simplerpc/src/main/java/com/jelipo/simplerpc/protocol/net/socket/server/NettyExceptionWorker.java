@@ -8,5 +8,9 @@ import io.netty.channel.ChannelHandlerContext;
  */
 public interface NettyExceptionWorker {
 
-    void exception(ChannelHandlerContext ctx, int exceptionType);
+    //void exception(ChannelHandlerContext ctx, int exceptionType,String exceptionMessage);
+
+
+    void exception(ChannelHandlerContext ctx, int exceptionType, String exceptionMessage, Long rpcId);
+
 }

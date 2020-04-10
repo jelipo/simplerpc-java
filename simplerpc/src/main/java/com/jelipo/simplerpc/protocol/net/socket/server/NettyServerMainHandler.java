@@ -12,6 +12,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -60,35 +61,40 @@ public class NettyServerMainHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         try {
-            ByteBufInputStream byteBufInputStream = new ByteBufInputStream((ByteBuf) msg);
-            short headerLength = byteBufInputStream.readShort();
-            byte[] bytes = new byte[headerLength];
-            int read = byteBufInputStream.read(bytes);
-            ProtocolMeta protocolMeta = CommonMetaUtils.deserialize(bytes);
-            if (protocolMeta.isHreatBeat()) {
-                nettyHeartBeatWorker.handle(ctx, protocolMeta, null);
-                return;
-            }
-            RpcRequest rpcRequest = dataSerialization.deserializeRequest(byteBufInputStream);
-            for (NettyWorker nettyHandlerWorker : workerList) {
-                if (nettyHandlerWorker.handle(ctx, protocolMeta, rpcRequest)) {
-                    break;
-                }
-            }
+            mainRead(ctx, msg);
         } catch (Throwable e) {
             e.printStackTrace();
-            exceptionWorker.exception(ctx, ExceptionType.RPC_INNER_EXCEPTION);
+            exceptionWorker.exception(ctx, ExceptionType.RPC_INNER_EXCEPTION, null);
         } finally {
             ReferenceCountUtil.release(msg);
         }
     }
+
+    private void mainRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        ByteBufInputStream byteBufInputStream = new ByteBufInputStream((ByteBuf) msg);
+        short headerLength = byteBufInputStream.readShort();
+        byte[] bytes = new byte[headerLength];
+        int read = byteBufInputStream.read(bytes);
+        ProtocolMeta protocolMeta = CommonMetaUtils.deserialize(bytes);
+        if (protocolMeta.isHreatBeat()) {
+            nettyHeartBeatWorker.handle(ctx, protocolMeta, null);
+            return;
+        }
+        RpcRequest rpcRequest = dataSerialization.deserializeRequest(byteBufInputStream);
+        for (NettyWorker nettyHandlerWorker : workerList) {
+            if (nettyHandlerWorker.handle(ctx, protocolMeta, rpcRequest)) {
+                break;
+            }
+        }
+    }
+
 
     /**
      * 传输出现异常时，返回rpcResponse。
      */
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        exceptionWorker.exception(ctx, ExceptionType.RPC_INNER_EXCEPTION);
+        exceptionWorker.exception(ctx, ExceptionType.RPC_INNER_EXCEPTION, cause.getMessage());
     }
 
     @Override
