@@ -64,7 +64,7 @@ public class NettyServerMainHandler extends ChannelInboundHandlerAdapter {
             mainRead(ctx, msg);
         } catch (Throwable e) {
             e.printStackTrace();
-            exceptionWorker.exception(ctx, ExceptionType.RPC_INNER_EXCEPTION, null);
+            exceptionWorker.exception(ctx, ExceptionType.RPC_INNER_EXCEPTION, e.getMessage(), null);
         } finally {
             ReferenceCountUtil.release(msg);
         }
@@ -94,7 +94,7 @@ public class NettyServerMainHandler extends ChannelInboundHandlerAdapter {
      */
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        exceptionWorker.exception(ctx, ExceptionType.RPC_INNER_EXCEPTION, cause.getMessage());
+        exceptionWorker.exception(ctx, ExceptionType.RPC_INNER_EXCEPTION, cause.getMessage(), null);
     }
 
     @Override

@@ -11,6 +11,12 @@ public interface NettyExceptionWorker {
     //void exception(ChannelHandlerContext ctx, int exceptionType,String exceptionMessage);
 
 
+    /**
+     * netty异常worker
+     *
+     * @param exceptionType    异常类型，使用 {@link com.jelipo.simplerpc.pojo.ExceptionType}
+     * @param exceptionMessage 异常信息
+     */
     void exception(ChannelHandlerContext ctx, int exceptionType, String exceptionMessage, Long rpcId);
 
 }
