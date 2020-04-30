@@ -4,6 +4,7 @@ plugins {
     `maven-publish`
 }
 
+
 version = "0.0.3"
 
 val lombokVersion = "1.18.12"
@@ -25,8 +26,18 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok:$lombokVersion")
     testAnnotationProcessor("org.projectlombok:lombok:$lombokVersion")
 }
-
+java {
+    withSourcesJar()
+}
 publishing {
+    publications {
+        create<MavenPublication>("default") {
+            from(components["java"])
+            pom {
+                version = System.getenv("GITHUB_SHA").substring(0, 6)
+            }
+        }
+    }
     repositories {
         maven {
             url = uri("https://maven.pkg.github.com/jelipo/simplerpc-java")
