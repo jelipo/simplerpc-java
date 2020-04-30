@@ -35,7 +35,7 @@ publishing {
     }
     repositories {
         maven {
-            url = uri("https://maven.pkg.github.com/jelipo")
+            url = uri("https://maven.pkg.github.com/jelipo/simplerpc-java")
             credentials {
                 username = System.getenv("USERNAME")
                 password = System.getenv("TOKEN")
