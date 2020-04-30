@@ -27,12 +27,6 @@ dependencies {
 }
 
 publishing {
-    publications {
-        create<MavenPublication>("default") {
-            from(components["java"])
-            // Include any other artifacts here, like javadocs
-        }
-    }
     repositories {
         maven {
             url = uri("https://maven.pkg.github.com/jelipo/simplerpc-java")
