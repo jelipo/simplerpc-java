@@ -25,3 +25,21 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok:$lombokVersion")
     testAnnotationProcessor("org.projectlombok:lombok:$lombokVersion")
 }
+
+publishing {
+    publications {
+        create<MavenPublication>("default") {
+            from(components["java"])
+            // Include any other artifacts here, like javadocs
+        }
+    }
+    repositories {
+        maven {
+            url = uri("https://maven.pkg.github.com/jelipo")
+            credentials {
+                username = System.getenv("USERNAME")
+                password = System.getenv("TOKEN")
+            }
+        }
+    }
+}
