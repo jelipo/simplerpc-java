@@ -81,7 +81,7 @@ public class Main {
     private void conn(ProxyInterface proxyInterfaceImpl) {
 
         final long l = System.currentTimeMillis();
-        int num = 1800000;
+        int num = 200000;
         AtomicInteger atomicInteger = new AtomicInteger(0);
         for (int i = 0; i < num; i++) {
             //异步调用RPC方法

@@ -9,6 +9,8 @@ import com.jelipo.simplerpc.pojo.RpcRequest;
 import com.jelipo.simplerpc.pojo.RpcResponse;
 import com.jelipo.simplerpc.protocol.net.CommonMetaUtils;
 import com.jelipo.simplerpc.protocol.serialization.DataSerialization;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.CompositeByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -38,19 +40,19 @@ public class NettyRpcWorker implements NettyWorker, NettyExceptionWorker {
 
     @Override
     public boolean handle(ChannelHandlerContext ctx, ProtocolMeta protocolMeta, RpcRequest rpcRequest) throws Exception {
-        int nettyId = protocolMeta.getRpcId();
+        int rpcId = protocolMeta.getRpcId();
         if (rpcRequest == null) {
             return false;
         }
         //判断是否是异步请求
         if (rpcRequest.getAsync() == 0) {
             RpcResponse rpcResponse = proxyServerCore.handleMethod(rpcRequest, protocolMeta);
-            returnResult(ctx, rpcResponse, nettyId);
+            returnResult(ctx, rpcResponse, rpcId);
         } else {
             CompletableFuture<RpcResponse> future = new CompletableFuture<>();
             proxyServerCore.handleAsyncMethod(rpcRequest, future, protocolMeta);
             future.whenComplete((rpcResponse, throwable) -> {
-                returnResult(ctx, rpcResponse, nettyId);
+                returnResult(ctx, rpcResponse, rpcId);
             });
         }
         return true;
@@ -74,11 +76,13 @@ public class NettyRpcWorker implements NettyWorker, NettyExceptionWorker {
             }
         }
         Channel channel = ctx.channel();
+        CompositeByteBuf messageBuf = Unpooled.compositeBuffer();
+        ByteBuf byteBuf = Unpooled.copiedBuffer(Shorts.toByteArray((short) metaBytes.length), metaBytes, rpcResponseBytes);
         if (channel.isWritable()) {
-            channel.writeAndFlush(Unpooled.copiedBuffer(Shorts.toByteArray((short) metaBytes.length), metaBytes, rpcResponseBytes));
+            channel.writeAndFlush(byteBuf);
         } else {
             try {
-                channel.writeAndFlush(Unpooled.copiedBuffer(Shorts.toByteArray((short) metaBytes.length), metaBytes, rpcResponseBytes)).sync();
+                channel.writeAndFlush(byteBuf).sync();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

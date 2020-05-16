@@ -20,7 +20,7 @@ dependencies {
     //序列化
     compileOnly("com.esotericsoftware:kryo:5.0.0-RC5")
     //网络协议
-    compileOnly("io.netty:netty-all:4.1.49.Final")
+    compileOnly("io.netty:netty-all:4.1.50.Final")
     //lombok
     compileOnly("org.projectlombok:lombok:$lombokVersion")
     annotationProcessor("org.projectlombok:lombok:$lombokVersion")
@@ -34,7 +34,7 @@ publishing {
         create<MavenPublication>("default") {
             from(components["java"])
             pom {
-                version = System.getenv("GITHUB_SHA").substring(0, 6)
+                version = System.getenv("GITHUB_SHA")?:"local12".substring(0, 6)
             }
         }
     }
